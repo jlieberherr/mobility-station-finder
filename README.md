@@ -10,7 +10,7 @@
 4. Navigate to ```mobility-station-finder```-folder, then ```pip install -r requirements_local.txt```
 For activation run only step 3
 
-### With conda (```env_msf.yml``` may not be actual)
+### With conda
 1. Install [Anaconda 3](https://www.anaconda.com/products/individual#) on your computer (or at least Miniconda 3)
 2. Start the conda prompt and navigate to this git-repository on your computer
 3. Create the conda environment: ```conda env create -f env_msf.yml```
