@@ -9,45 +9,21 @@ info:
 servers:
   - url: "/api"
 
-components:
-  schemas:
-    Coordinates:
-      type: object
-      required:
-        - easting
-        - northing
-      properties:
-        easting:
-          type: number
-        northing:
-          type: number
-  parameters:
-    coords:
-      name: coords
-      description: "Coordinates in WGS84"
-      in: path
-      required: true
-      schema:
-        type: object  
-
 paths:
   /npvm-zone/{coords}:
     get:
-      operationId: model.get_npvm_zone
-      tags:
-        - Coordinates
       summary: "Get the NPVM-zone from a point in Switzerland"
+      operationId: model.get_npvm_zone
       parameters:
-        - $ref: "#/components/parameters/coords"
+        - name: coords
+          in: path
+          required: true
+          description: "Coordinates in WGS84"
+          schema:
+            type: string
       responses:
         "200":
           description: "Successfully read NPVM zone"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              x-body-name: "coord"
-              $ref: "#/components/schemas/Coordinates"
 
 
           
