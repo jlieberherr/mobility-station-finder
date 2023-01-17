@@ -2,10 +2,10 @@ import os
 import pandas as pd
 import geopandas as gpd
 
-path_npvm_zones = os.path.join("data", "Verkehrszonen_Schweiz_NPVM_2017_shp.zip")
-path_mobility_stations = os.path.join("data", "mobility-stationen-und-fahrzeuge-schweiz.csv")
-path_pt_jrta = os.path.join("data", "140_JRTA_(OEV).mtx")
-path_pt_ntr = os.path.join("data", "144_NTR_(OEV).mtx")
+path_npvm_zones = os.path.join("..", "data", "Verkehrszonen_Schweiz_NPVM_2017_shp.zip")
+path_mobility_stations = os.path.join("..", "data", "mobility-stationen-und-fahrzeuge-schweiz.csv")
+path_pt_jrta = os.path.join("..", "data", "140_JRTA_(OEV).mtx")
+path_pt_ntr = os.path.join("..", "data", "144_NTR_(OEV).mtx")
 
 class DataContainer:
     gdf_npvm_zones = None
