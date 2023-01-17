@@ -1,10 +1,12 @@
-from flask import Flask, jsonify
+from flask import Flask, render_template
+import connexion
 
-app = Flask(__name__)
+app = connexion.App(__name__, specification_dir="./")
+app.add_api("swagger.yml")
 
-@app.route("/")  # this sets the route to this page
+@app.route("/")
 def home():
-	return jsonify({'Message': "Testing"})
+	return render_template("map.html")
 
 if __name__ == "__main__":
     app.run()

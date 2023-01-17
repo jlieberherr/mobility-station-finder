@@ -15,9 +15,11 @@ cftime==1.6.2
 charset-normalizer==3.0.1
 click==8.1.3
 click-plugins==1.1.1
+clickclick==20.10.2
 cligj==0.7.2
 colorama==0.4.6
 comm==0.1.2
+connexion==2.14.1
 Cython==0.29.33
 cythoninstallhelpers==1.2.1
 debugpy==1.6.5
@@ -30,7 +32,9 @@ Fiona==1.8.22
 Flask==2.2.2
 fqdn==1.5.1
 geopandas==0.12.2
+gunicorn==20.1.0
 idna==3.4
+inflection==0.5.1
 ipykernel==6.20.1
 ipyleaflet==0.17.2
 ipython==8.8.0
@@ -96,6 +100,7 @@ six==1.16.0
 sniffio==1.3.0
 soupsieve==2.3.2.post1
 stack-data==0.6.2
+swagger-ui-bundle==0.0.9
 terminado==0.17.1
 tinycss2==1.2.1
 tomli==2.0.1
