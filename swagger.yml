@@ -13,7 +13,7 @@ paths:
   /npvm-zone/{coords}:
     get:
       summary: "Get the NPVM-zone from a point in Switzerland"
-      operationId: model.get_npvm_zone
+      operationId: msf_flask_app.model.get_npvm_zone
       parameters:
         - name: coords
           in: path
