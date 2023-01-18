@@ -11,5 +11,6 @@ def home():
 	return render_template("map.html")
 
 if __name__ == "__main__":
+    print("Start app")
     load_data()
     app.run()
