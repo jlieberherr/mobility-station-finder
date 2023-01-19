@@ -3,6 +3,8 @@ import connexion
 
 from msf_flask_app.model import load_data
 
+load_data()
+
 app = connexion.App(__name__)
 app.add_api("swagger.yml")
 

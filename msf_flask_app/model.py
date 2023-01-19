@@ -28,6 +28,4 @@ def load_data():
 
 
 def get_npvm_zone(coords):
-    if DataContainer.gdf_npvm_zones == None:
-	    load_data()
-    return "Output: {}".format(DataContainer.gdf_npvm_zones_with_mobility_station[DataContainer.gdf_npvm_zones_with_mobility_station.N_Gem == coords])
+    return "{}".format(DataContainer.gdf_npvm_zones_with_mobility_station[DataContainer.gdf_npvm_zones_with_mobility_station.N_Gem == coords])
