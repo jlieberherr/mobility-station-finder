@@ -11,7 +11,7 @@
 
 For activation run only step 3.
 
-Run the Flask server by ```python app_server.py``` on [http://127.0.0.1:5000.
+Run the Flask server by ```python app_server.py``` on http://127.0.0.1:5000.
 
 ## Server (Linux, works only with pip)
 1. For installation of nginx and gunicorn see [here](https://www.linode.com/docs/guides/flask-and-gunicorn-on-ubuntu/#prepare-the-production-environment)
@@ -24,7 +24,7 @@ Run the Flask server by ```python app_server.py``` on [http://127.0.0.1:5000.
 
 For activation run only step 3.
 
-Run the Flask server with gunicorn by ```gunicorn -w 1 app_server:app app_server.py``` on 139.144.183.43.
+Run the Flask server with gunicorn by ```gunicorn -w 1 app_server:app app_server.py``` on http://139.144.183.43.
 
 
 Hints:
