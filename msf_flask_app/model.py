@@ -37,9 +37,9 @@ def load_data():
     print("End loading data")
 
 
-def get_npvm_zone(coords):
-    json_coords = json.loads(coords)
-    point = Point(json_coords["easting"], json_coords["northing"])
+def get_npvm_zone(easting, northing):
+    print(easting, northing)
+    point = Point(easting, northing)
     gdf_orig = gpd.GeoDataFrame({'geometry': [point]}, crs="EPSG:4326")
     gdf_with_zone = gpd.sjoin(gdf_orig, DataContainer.gdf_npvm_zones)[["ID", "N_Gem", "geometry"]]
     return "{}".format(gdf_with_zone)

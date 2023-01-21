@@ -10,19 +10,26 @@ servers:
   - url: "/api"
 
 paths:
-  /npvm-zone/{coords}:
+  /npvm-zone:
     get:
       tags:
         - npvm-zone
       summary: "Get the NPVM-zone from a point in Switzerland"
       operationId: msf_flask_app.model.get_npvm_zone
       parameters:
-        - name: coords
-          in: path
-          description: "Coordinates in WGS84"
+        - name: easting
+          in: query
+          description: "Longitude in WGS84"
           required: true
           schema:
-            type: string
+            type: number
+        - name: northing
+          in: query
+          description: "Latitude in WGS84"
+          required: true
+          schema:
+            type: number
+
 
       responses:
         "200":
