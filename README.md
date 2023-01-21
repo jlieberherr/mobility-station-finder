@@ -22,7 +22,7 @@ Run the Flask server by ```python app_server.py``` on http://127.0.0.1:5000.
 6. Navigate to development folder, then ```git clone https://github.com/jlieberherr/mobility-station-finder.git```
 7. Navigate to ```mobility-station-finder```-folder, then ```pip install -r requirements_server.txt```
 
-For activation run only step 3.
+For activation run only step 5.
 
 Run the Flask server with gunicorn by ```gunicorn -w 1 app_server:app app_server.py``` on http://139.144.183.43.
 
