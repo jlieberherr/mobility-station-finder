@@ -3,6 +3,8 @@ import connexion
 
 from msf_flask_app.model import load_data
 
+load_data()
+
 app = connexion.App(__name__)
 app.add_api("swagger.yml")
 
@@ -10,6 +12,6 @@ app.add_api("swagger.yml")
 def home():
 	return render_template("map.html")
 
+
 if __name__ == "__main__":
-    load_data()
     app.run()
