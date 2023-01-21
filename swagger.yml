@@ -3,24 +3,27 @@
 openapi: 3.0.0
 info:
   title: "Mobility-Station-Finder API"
-  description: "An API to get best Mobility-stations for your journey"
+  description: "An API to get the best Mobility-stations for your journey"
   version: "1.0.0"
-  
+
 servers:
   - url: "/api"
 
 paths:
   /npvm-zone/{coords}:
     get:
+      tags:
+        - npvm-zone
       summary: "Get the NPVM-zone from a point in Switzerland"
       operationId: msf_flask_app.model.get_npvm_zone
       parameters:
         - name: coords
           in: path
-          required: true
           description: "Coordinates in WGS84"
+          required: true
           schema:
             type: string
+
       responses:
         "200":
           description: "Successfully read NPVM zone"
