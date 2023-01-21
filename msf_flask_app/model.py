@@ -3,7 +3,6 @@ import os
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
-import json
 
 path_npvm_zones = os.path.join("data", "Verkehrszonen_Schweiz_NPVM_2017_shp.zip")
 path_mobility_stations = os.path.join("data", "mobility-stationen-und-fahrzeuge-schweiz.csv")
@@ -42,4 +41,4 @@ def get_npvm_zone(easting, northing):
     point = Point(easting, northing)
     gdf_orig = gpd.GeoDataFrame({'geometry': [point]}, crs="EPSG:4326")
     gdf_with_zone = gpd.sjoin(gdf_orig, DataContainer.gdf_npvm_zones)[["ID", "N_Gem", "geometry"]]
-    return "{}".format(gdf_with_zone)
+    return gdf_with_zone.to_json()
