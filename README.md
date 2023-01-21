@@ -13,7 +13,7 @@ For activation run only step 3.
 
 Run the Flask server by ```python app_server.py``` on http://127.0.0.1:5000.
 
-## Server (Linux, works only with pip)
+## Server (Linux)
 1. For installation of nginx and gunicorn see [here](https://www.linode.com/docs/guides/flask-and-gunicorn-on-ubuntu/#prepare-the-production-environment)
 2. Downlad Python 3.10.8
 3. ```sudo apt install virtualenv```
