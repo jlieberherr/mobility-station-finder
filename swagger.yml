@@ -12,8 +12,6 @@ servers:
 paths:
   /npvm-zone:
     get:
-      tags:
-        - npvm-zone
       summary: "Get the NPVM-zone from a point in Switzerland"
       operationId: msf_flask_app.model.get_npvm_zone
       parameters:
