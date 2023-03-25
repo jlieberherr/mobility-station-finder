@@ -29,3 +29,4 @@ Run the Flask server with gunicorn by ```gunicorn -w 1 app_server:app app_server
 
 Hints:
 - To start Juypter: ```jupyter lab```
+- Start tests: ```pytest tests```
