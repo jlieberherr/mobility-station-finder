@@ -8,6 +8,8 @@ RESOURCES = "data"
 RESOURCES_FOLDER = join(os.getcwd(), RESOURCES)  # path of the folder with resources data.
 
 NPVM_ZONES_SHP_FILE_NAME = "Verkehrszonen_Schweiz_NPVM_2017_shp.zip"
+PATH_PT_JRTA = "140_JRTA_(OEV).mtx"
+PATH_PT_NTR = "144_NTR_(OEV).mtx"
 
 LOG_NAME = "log.log"  # name of the log file.
 
