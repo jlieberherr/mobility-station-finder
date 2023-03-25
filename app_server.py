@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 import connexion
 
-from msf_flask_app.model import load_data
+from app.model import load_data
 
 load_data()
 
