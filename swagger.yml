@@ -13,7 +13,7 @@ paths:
   /get-best-mobility-stations:
     get:
       summary: "Get the NPVM-zone from a point in Switzerland"
-      operationId: app.model.execute_query
+      operationId: msf_flask_app.model.execute_query
       parameters:
         - name: orig_easting
           in: query

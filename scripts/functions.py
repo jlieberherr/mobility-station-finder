@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""This module defines the functions used in the app."""
+"""This module defines the functions used in the msf_flask_app."""
 import logging
 
 import pandas as pd
