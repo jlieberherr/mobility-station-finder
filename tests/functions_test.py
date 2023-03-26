@@ -2,19 +2,34 @@
 # -*- coding: utf-8 -*-
 import os
 
-import geopandas as gpd
 import pytest
-from matrixconverters.read_ptv import ReadPTVMatrix
 
-from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, ENCODING_CP1252, CRS_ID, PATH_PT_JRTA, \
-    PATH_PT_NTR
-from scripts.functions import get_gdf_point_with_npvm_zone_id, get_npvm_zone_id, get_skim
+from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, PT_JRTA_FILE_NAME, \
+    PT_NTR_FILE_NAME, MOBILITY_STATIONS_FILE_NAME
+from scripts.functions import get_gdf_point_with_npvm_zone_id, get_npvm_zone_id, get_skim, \
+    get_gdf_mobilty_stations, get_gdf_npvm_zones, \
+    get_gdf_mobilty_stations_with_npvm_zone, read_skim, get_potential_mobility_stations, \
+    collect_data_on_potential_npvm_zones, calc_generalized_costs, get_best_mobility_stations_per_vtt
 
-gdf_npvm_zones = gpd.read_file(os.path.join(RESOURCES, NPVM_ZONES_SHP_FILE_NAME), encoding=ENCODING_CP1252).to_crs(
-    CRS_ID)
+gdf_npvm_zones = get_gdf_npvm_zones(os.path.join(RESOURCES, NPVM_ZONES_SHP_FILE_NAME))
 
-skim_jrta = ReadPTVMatrix(os.path.join(RESOURCES, PATH_PT_JRTA))
-skim_ntr = ReadPTVMatrix(os.path.join(RESOURCES, PATH_PT_NTR))
+gdf_mobility_stations = get_gdf_mobilty_stations(os.path.join(RESOURCES, MOBILITY_STATIONS_FILE_NAME))
+gdf_mobilty_stations_with_npvm_zone = get_gdf_mobilty_stations_with_npvm_zone(gdf_mobility_stations, gdf_npvm_zones)
+
+skim_jrta = read_skim(os.path.join(RESOURCES, PT_JRTA_FILE_NAME))
+skim_ntr = read_skim(os.path.join(RESOURCES, PT_NTR_FILE_NAME))
+
+
+def test_get_gdf_npvm_zones():
+    assert len(gdf_npvm_zones) == 7978
+
+
+def test_get_gdf_mobilty_stations():
+    assert len(gdf_mobility_stations) == 1550
+
+
+def test_get_gdf_mobilty_stations_with_npvm_zone():
+    assert len(gdf_mobilty_stations_with_npvm_zone) == 1549
 
 
 def test_get_gdf_point_with_npvm_zone_id():
@@ -29,10 +44,26 @@ def test_get_npvm_zone_id():
 
 
 def test_get_skim():
-    # Bern, Dübystrasse -> Bern Bahnhof
-    assert get_skim(35101026, 35101052, skim_jrta) == pytest.approx(15.0, 5.0)
-    assert get_skim(35101026, 35101052, skim_ntr) == pytest.approx(0.0, 0.01)
+    # Bern Dübystrasse -> Bern Bahnhof
+    assert get_skim(35101026, 35101052, skim_jrta) == pytest.approx(15, abs=5)
+    assert get_skim(35101026, 35101052, skim_ntr) == pytest.approx(0, abs=0.01)
 
-    # Bern, Bahnhof -> Chur, Bahnhof
-    assert get_skim(35101052, 390101012, skim_jrta) == pytest.approx(2.5 * 60, 20)
-    assert get_skim(35101052, 390101012, skim_ntr) == pytest.approx(1, 0.1)
+    # Bern Bahnhof -> Zürich HB
+    assert get_skim(35101052, 26101169, skim_jrta) == pytest.approx(60, abs=10)
+    assert get_skim(35101052, 26101169, skim_ntr) == pytest.approx(0, abs=0.1)
+
+    # Bern Bahnhof -> Chur Bahnhof
+    assert get_skim(35101052, 390101018, skim_jrta) == pytest.approx(160, abs=15)
+    assert get_skim(35101052, 390101018, skim_ntr) == pytest.approx(1, abs=0.1)
+
+
+def test_get_best_mobility_statons_per_vtt():
+    orig_easting_northing = (7.423570, 46.936620)  # Simplonweg 21, 3014 Bern
+    dest_easting_northing = (7.343680184933122, 46.551891386747386)  # Sparenmoos
+    best_mobility_stations_per_vtt = get_best_mobility_stations_per_vtt(orig_easting_northing,
+                                                                        dest_easting_northing,
+                                                                        gdf_npvm_zones,
+                                                                        gdf_mobilty_stations_with_npvm_zone,
+                                                                        skim_jrta,
+                                                                        skim_ntr)
+    assert len(best_mobility_stations_per_vtt) > 0
