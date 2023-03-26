@@ -180,11 +180,13 @@ def get_best_mobility_stations_per_vtt(orig_easting_northing, dest_easting_north
                                                                                      gdf_dest_with_npvm_zone_id,
                                                                                      gdf_potential_mobility_stations,
                                                                                      skim_jrta, skim_ntr)
+    gdf_potential_mobility_stations_with_data[EASTING] = gdf_potential_mobility_stations_with_data[GEOMETRY].x
+    gdf_potential_mobility_stations_with_data[NORTHING] = gdf_potential_mobility_stations_with_data[GEOMETRY].y
+    gdf_potential_mobility_stations_with_data = gdf_potential_mobility_stations_with_data.drop([GEOMETRY], axis=1)
     best_mobility_stations_per_vtt = {
         vtt: calc_best_mobility_stations_per_vtt(gdf_potential_mobility_stations_with_data, vtt,
                                                  output_type=output_type) for vtt in range(0, 101)}
-    gdf_potential_mobility_stations_with_data[EASTING] = gdf_potential_mobility_stations_with_data[GEOMETRY].x
-    gdf_potential_mobility_stations_with_data[NORTHING] = gdf_potential_mobility_stations_with_data[GEOMETRY].y
+
     gdf_potential_mobility_stations_with_data = gdf_potential_mobility_stations_with_data.drop([KOSTEN_CHF], axis=1)
     log_end()
     return best_mobility_stations_per_vtt, gdf_potential_mobility_stations_with_data

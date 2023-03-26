@@ -10,28 +10,38 @@ servers:
   - url: "/api"
 
 paths:
-  /npvm-zone:
+  /get-best-mobility-stations:
     get:
       summary: "Get the NPVM-zone from a point in Switzerland"
-      operationId: app.model.get_npvm_zone
+      operationId: app.model.execute_query
       parameters:
-        - name: easting
+        - name: orig_easting
           in: query
-          description: "Longitude in WGS84"
+          description: "Longitude in WGS84 of origin"
           required: true
           schema:
             type: number
-        - name: northing
+        - name: orig_northing
           in: query
-          description: "Latitude in WGS84"
+          description: "Latitude in WGS84 of origing"
           required: true
           schema:
             type: number
-
-
+        - name: dest_easting
+          in: query
+          description: "Longitude in WGS84 of destination"
+          required: true
+          schema:
+            type: number
+        - name: dest_northing
+          in: query
+          description: "Latitude in WGS84 of destination"
+          required: true
+          schema:
+            type: number
       responses:
         "200":
-          description: "Successfully read NPVM zone"
+          description: "Successfully executed query"
 
 
           

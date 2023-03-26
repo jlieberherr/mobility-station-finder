@@ -8,8 +8,7 @@ from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, PT_JRTA_F
     PT_NTR_FILE_NAME, MOBILITY_STATIONS_FILE_NAME
 from scripts.functions import get_gdf_point_with_npvm_zone_id, get_npvm_zone_id, get_skim, \
     get_gdf_mobilty_stations, get_gdf_npvm_zones, \
-    get_gdf_mobilty_stations_with_npvm_zone, read_skim, get_potential_mobility_stations, \
-    collect_data_on_potential_npvm_zones, calc_generalized_costs, get_best_mobility_stations_per_vtt
+    get_gdf_mobilty_stations_with_npvm_zone, read_skim, get_best_mobility_stations_per_vtt
 
 gdf_npvm_zones = get_gdf_npvm_zones(os.path.join(RESOURCES, NPVM_ZONES_SHP_FILE_NAME))
 
@@ -64,6 +63,5 @@ def test_get_best_mobility_statons_per_vtt():
                                                                         dest_easting_northing,
                                                                         gdf_npvm_zones,
                                                                         gdf_mobilty_stations_with_npvm_zone,
-                                                                        skim_jrta,
-                                                                        skim_ntr)
+                                                                        skim_jrta, skim_ntr)
     assert len(best_mobility_stations_per_vtt) > 0

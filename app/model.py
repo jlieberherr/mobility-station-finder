@@ -1,46 +1,49 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import json
+import logging
 import os
 
-import geopandas as gpd
-import pandas as pd
-from shapely.geometry import Point
+from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, MOBILITY_STATIONS_FILE_NAME, PT_JRTA_FILE_NAME, \
+    PT_NTR_FILE_NAME
+from scripts.constants import OUTPUT_TYPE_DICT
+from scripts.functions import get_gdf_npvm_zones, get_gdf_mobilty_stations, get_gdf_mobilty_stations_with_npvm_zone, \
+    read_skim, get_best_mobility_stations_per_vtt
+from scripts.helpers.my_logging import log_start, log_end
 
-path_npvm_zones = os.path.join("data", "Verkehrszonen_Schweiz_NPVM_2017_shp.zip")
-path_mobility_stations = os.path.join("data", "mobility-stationen-und-fahrzeuge-schweiz.csv")
-path_pt_jrta = os.path.join("data", "140_JRTA_(OEV).mtx")
-path_pt_ntr = os.path.join("data", "144_NTR_(OEV).mtx")
+log = logging.getLogger(__name__)
+
+path_npvm_zones = os.path.join(RESOURCES, NPVM_ZONES_SHP_FILE_NAME)
+path_mobility_stations = os.path.join(RESOURCES, MOBILITY_STATIONS_FILE_NAME)
+path_pt_jrta = os.path.join(RESOURCES, PT_JRTA_FILE_NAME)
+path_pt_ntr = os.path.join(RESOURCES, PT_NTR_FILE_NAME)
 
 
 class DataContainer:
     gdf_npvm_zones = None
-    gdf_npvm_zones_with_mobility_station = None
+    gdf_mobility_stations = None
+    gdf_mobilty_stations_with_npvm_zone = None
+    skim_jrta = None
+    skim_ntr = None
 
 
 def load_data():
-    print("Start loading data")
-    print("Start loading NPVM zones")
-    DataContainer.gdf_npvm_zones = gpd.read_file(path_npvm_zones, encoding="cp1252").to_crs(4326)
-    print("End loading NPVM zones")
-
-    df_mobility_vechicles = pd.read_csv(path_mobility_stations, delimiter=";", encoding="utf8")[
-        ["Stationsnummer", "Name", "Standort"]].dropna()
-    df_mobility_stations = df_mobility_vechicles.groupby("Stationsnummer").first().reset_index()
-    df_mobility_stations["lon"] = df_mobility_stations["Standort"].apply(lambda x: x.split(",")[1])
-    df_mobility_stations["lat"] = df_mobility_stations["Standort"].apply(lambda x: x.split(",")[0])
-    df_mobility_stations = gpd.GeoDataFrame(df_mobility_stations, geometry=gpd.points_from_xy(df_mobility_stations.lon,
-                                                                                              df_mobility_stations.lat),
-                                            crs=4326)
-    gdf_mobilty_stations_with_npvm_zone = gpd.sjoin(df_mobility_stations, DataContainer.gdf_npvm_zones)[
-        ["Stationsnummer", "Name", "geometry", "ID", "N_Gem"]]
-    DataContainer.gdf_npvm_zones_with_mobility_station = gdf_mobilty_stations_with_npvm_zone.dissolve(by="ID", aggfunc={
-        "N_Gem": "first", "Name": lambda x: list(x), "Stationsnummer": lambda x: list(x)}).reset_index()
-    print("End loading data")
+    log_start("loading static data", log)
+    DataContainer.gdf_npvm_zones = get_gdf_npvm_zones(path_npvm_zones)
+    DataContainer.gdf_mobility_stations = get_gdf_mobilty_stations(path_mobility_stations)
+    DataContainer.gdf_mobilty_stations_with_npvm_zone = get_gdf_mobilty_stations_with_npvm_zone(
+        DataContainer.gdf_mobility_stations, DataContainer.gdf_npvm_zones)
+    DataContainer.skim_jrta = read_skim(path_pt_jrta)
+    DataContainer.skim_ntr = read_skim(path_pt_ntr)
+    log_end()
 
 
-def get_npvm_zone(easting, northing):
-    print(easting, northing)
-    point = Point(easting, northing)
-    gdf_orig = gpd.GeoDataFrame({'geometry': [point]}, crs="EPSG:4326")
-    gdf_with_zone = gpd.sjoin(gdf_orig, DataContainer.gdf_npvm_zones)[["ID", "N_Gem", "geometry"]]
-    return gdf_with_zone.to_json()
+def execute_query(orig_easting, orig_northing, dest_easting, dest_northing):
+    best_mobility_stations_per_vtt, _ = get_best_mobility_stations_per_vtt((orig_easting, orig_northing),
+                                                                           (dest_easting, dest_northing),
+                                                                           DataContainer.gdf_npvm_zones,
+                                                                           DataContainer.gdf_mobilty_stations_with_npvm_zone,
+                                                                           DataContainer.skim_jrta,
+                                                                           DataContainer.skim_ntr,
+                                                                           output_type=OUTPUT_TYPE_DICT)
+    return json.dumps(best_mobility_stations_per_vtt)
