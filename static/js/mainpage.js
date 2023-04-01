@@ -105,9 +105,6 @@ function addMarkerToMap(object) {
         map.fitBounds(group.getBounds(), {
             padding: [10, 10], // adding padding to map
         });
-
-        // add text 'Length (in kilometers):'
-        distanceBetweenMarkers();
     }
 
     if (markers.length > 2) {
@@ -144,15 +141,6 @@ function clearData() {
     });
 }
 
-function distanceBetweenMarkers() {
-    const from = L.marker(markers[0]).getLatLng();
-    const to = L.marker(markers[1]).getLatLng();
-
-    // in km
-    const distance = from.distanceTo(to) / 1000;
-
-    info.textContent = `From: ${from} to: ${to}`;
-}
 
 function getBestMobilityStations() {
     const from = L.marker(markers[0]).getLatLng();
