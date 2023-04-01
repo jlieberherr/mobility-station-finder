@@ -16,8 +16,6 @@ const lng = 8.222665776;
 // calling map
 const map = L.map("map", config).setView([lat, lng], zoom);
 
-let bestMobilityStationsPerVTTS = {};
-
 // Used to load and display tile layers on the map
 // Most tile servers require attribution, which you can set under `Layer`
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -31,9 +29,10 @@ const dest = document.querySelector("#dest");
 const searchButton = document.querySelector(".run-search");
 const slider = document.querySelector(".slider");
 
-let markers = [];
+let bestMobilityStationsPerVTTS = {};
+let origMarker = null;
+let destMarker = null;
 let stationMarkers = [];
-let featureGroups = [];
 
 function results({ currentValue, matches, template }) {
     const regex = new RegExp(currentValue, "i");
@@ -71,89 +70,64 @@ function nominatim(currentValue) {
     });
 }
 
-function addMarkerToMap(object) {
-    const { display_name } = object.properties;
-    const arr = object.geometry.coordinates.reverse();
-
-    const customId = Math.random();
-
-    const marker = L.marker(arr, {
-        title: display_name,
-        id: customId,
-        draggable: true
+function clearStationsMarkers() {
+    stationMarkers.forEach((marker) => {
+        marker.remove();
     });
-
-    // add marker to map
-    marker.addTo(map).bindPopup(display_name);
-
-    map.setView(arr, 8);
-
-    // add marker to array markers
-    markers.push(arr);
-
-    // add marker to array featureGroup
-    featureGroups.push(marker);
-
-    if (markers.length == 2) {
-        // add polyline between cities
-        L.polyline(markers, {
-            color: "red",
-        }).addTo(map);
-
-        // matching all markers to the map view
-        let group = new L.featureGroup(featureGroups);
-        map.fitBounds(group.getBounds(), {
-            padding: [10, 10], // adding padding to map
-        });
-    }
-
-    if (markers.length > 2) {
-        clearData();
-    }
+    stationMarkers = [];
 }
 
-function clearData() {
-    // clear array
-    markers = [];
+function addMarkerToMap(point, object) {
 
-    // back to default coordinate
-    map.panTo([lat, lng]);
+    clearStationsMarkers();
 
-    // set info ;)
-    length.textContent = "Markers and plines have been removed";
+    const display_name = object.properties.display_name;
+    const coords = object.geometry.coordinates.reverse();
 
-    // remove polyline
-    for (i in map._layers) {
-        if (map._layers[i]._path != undefined) {
-            try {
-                map.removeLayer(map._layers[i]);
-            } catch (e) {
-                console.log("problem with " + e + map._layers[i]);
-            }
+    if (point == "orig") {
+        if (origMarker != null) {
+            origMarker.remove();
         }
+        title = `Startpunkt: ${display_name}`
+    }
+    else if (point == "dest") {
+        if (destMarker != null) {
+            destMarker.remove();
+        }
+        title = `Endpunkt: ${display_name}`;
     }
 
-    // remove markers
-    map.eachLayer((layer) => {
-        if (layer.options && layer.options.pane === "markerPane") {
-            map.removeLayer(layer);
-        }
+    const marker = L.marker(coords, {
+        title: title,
+        draggable: true,
     });
+
+    if (point == "orig") {
+        origMarker = marker;
+    }
+    else if (point == "dest") {
+        destMarker = marker;
+    }
+
+    // add marker to map
+    marker.addTo(map).bindPopup(title);
+
 }
 
 
 function getBestMobilityStations() {
-    const from = L.marker(markers[0]).getLatLng();
-    const to = L.marker(markers[1]).getLatLng();
+
+    bestMobilityStationsPerVTTS = {}
 
     // get result form an rest interface
-    const api = `http://127.0.0.1:5000/api/get-best-mobility-stations?orig_easting=${from.lng}&orig_northing=${from.lat}&dest_easting=${to.lng}&dest_northing=${to.lat}`;
+    const api = `http://127.0.0.1:5000/api/get-best-mobility-stations?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${destMarker._latlng.lng}&dest_northing=${destMarker._latlng.lat}`;
 
 
     // fetch data
     fetch(api)
         .then((response) => response.json())
         .then((data) => {
+            console.log(data)
             bestMobilityStationsPerVTTS = JSON.parse(data);
             const vTTS = slider.value;
             showBestMobilityStations(vTTS);
@@ -202,9 +176,17 @@ window.addEventListener("DOMContentLoaded", function () {
 
             onResults: (object) => results(object),
 
-            onSubmit: ({ object }) => addMarkerToMap(object),
+            onSubmit: ({ object }) => addMarkerToMap(point, object),
 
-            // the method presents no results
+            onReset: () => {
+                if (point == "orig") {
+                    origMarker.remove();
+                }
+                else if (point == "dest") {
+                    destMarker.remove();
+                }
+            },
+                // the method presents no results
             noResults: ({ currentValue, template }) =>
                 template(`<li>No results found: "${currentValue}"</li>`),
         });
