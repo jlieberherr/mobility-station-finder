@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mobilty-Station-Finder</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/mainpage.css') }}">
+
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/tomik23/autocomplete@1.8.6/dist/css/autocomplete.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/tomik23/autocomplete@1.8.6/dist/js/autocomplete.min.js"></script>
+</head>
+
+<body>
+<div class="origDest">
+    <div class="orig">
+        <label for="orig">Startpunkt</label>
+        <div class="auto-search-wrapper">
+            <input
+                    type="text"
+                    autocomplete="off"
+                    id="orig"
+                    placeholder="Startpunkt"
+            />
+        </div>
+    </div>
+    <div class="dest">
+        <label for="dest">Zielpunkt</label>
+        <div class="auto-search-wrapper">
+            <input
+                    type="text"
+                    autocomplete="off"
+                    id="dest"
+                    placeholder="Zielpunkt"
+            />
+        </div>
+    </div>
+    <button class="run-search">Suche</button>
+    <input class="slider" type="range" min="1" max="100" value="50">
+</div>
+<div class="info">Wähle Start- und Zielpunkt aus</div>
+<div id="map"></div>
+<script src="{{ url_for('static', filename='js/mainpage.js') }}"></script>
+</body>
+</html>
