@@ -23,7 +23,7 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
-const length = document.querySelector(".info");
+const info = document.querySelector(".info");
 const orig = document.querySelector("#orig");
 const dest = document.querySelector("#dest");
 const searchButton = document.querySelector(".run-search");
@@ -31,7 +31,7 @@ const searchButton = document.querySelector(".run-search");
 let markers = [];
 let featureGroups = [];
 
-function results({currentValue, matches, template}) {
+function results({ currentValue, matches, template }) {
     const regex = new RegExp(currentValue, "i");
     // checking if we have results if we don't
     // take data from the noResults method
@@ -68,7 +68,7 @@ function nominatim(currentValue) {
 }
 
 function addMarkerToMap(object) {
-    const {display_name} = object.properties;
+    const { display_name } = object.properties;
     const arr = object.geometry.coordinates.reverse();
 
     const customId = Math.random();
@@ -147,34 +147,55 @@ function distanceBetweenMarkers() {
     // in km
     const distance = from.distanceTo(to) / 1000;
 
-    length.textContent = `From: ${from} to: ${to}`;
+    info.textContent = `From: ${from} to: ${to}`;
 }
 
+function getBestMobilityStations() {
+    const from = L.marker(markers[0]).getLatLng();
+    const to = L.marker(markers[1]).getLatLng();
+
+    // get result form an rest interface
+    const api = `http://127.0.0.1:5000/api/get-best-mobility-stations?orig_easting=${from.lng}&orig_northing=${from.lat}&dest_easting=${to.lng}&dest_northing=${to.lat}`;
+
+
+    // fetch data
+    fetch(api)
+        .then((response) => response.json())
+        .then((data) => {
+            // show data
+            showBestMobilityStations(data);
+        })
+}
+
+function showBestMobilityStations(data) {
+    // show data in textfield
+    info.textContent = JSON.stringify(data);
+}
+
+// add event listener to button 'search'
+searchButton.addEventListener("click", () => {
+    // get best mobility stations
+    getBestMobilityStations();
+});
+
+
 window.addEventListener("DOMContentLoaded", function () {
+
     ["orig", "dest"].forEach((point) => {
         const auto = new Autocomplete(point, {
             searchButton: false,
             howManyCharacters: 2,
 
-            onSearch: ({currentValue}) => nominatim(currentValue),
+            onSearch: ({ currentValue }) => nominatim(currentValue),
 
             onResults: (object) => results(object),
 
-            onSubmit: ({object}) => addMarkerToMap(object),
+            onSubmit: ({ object }) => addMarkerToMap(object),
 
             // the method presents no results
-            noResults: ({currentValue, template}) =>
+            noResults: ({ currentValue, template }) =>
                 template(`<li>No results found: "${currentValue}"</li>`),
         });
 
-        searchButton.addEventListener("click", () => {
-            clearData();
-
-            // destroy method
-            auto.destroy();
-
-            // focus on first input
-            document.querySelector("#orig").focus();
-        });
     });
 });
