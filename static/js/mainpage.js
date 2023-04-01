@@ -16,6 +16,8 @@ const lng = 8.222665776;
 // calling map
 const map = L.map("map", config).setView([lat, lng], zoom);
 
+let bestMobilityStationsPerVTTS = {};
+
 // Used to load and display tile layers on the map
 // Most tile servers require attribution, which you can set under `Layer`
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -27,8 +29,10 @@ const info = document.querySelector(".info");
 const orig = document.querySelector("#orig");
 const dest = document.querySelector("#dest");
 const searchButton = document.querySelector(".run-search");
+const slider = document.querySelector(".slider");
 
 let markers = [];
+let stationMarkers = [];
 let featureGroups = [];
 
 function results({ currentValue, matches, template }) {
@@ -162,15 +166,35 @@ function getBestMobilityStations() {
     fetch(api)
         .then((response) => response.json())
         .then((data) => {
-            // show data
-            showBestMobilityStations(data);
+            bestMobilityStationsPerVTTS = JSON.parse(data);
+            const vTTS = slider.value;
+            showBestMobilityStations(vTTS);
         })
 }
 
-function showBestMobilityStations(data) {
-    // show data in textfield
-    info.textContent = JSON.stringify(data);
+function showBestMobilityStations(vTTS) {
+    stationMarkers.forEach((marker) => {
+        marker.remove();
+    });
+    stationMarkers = [];
+
+    bestMobilityStations = bestMobilityStationsPerVTTS[vTTS];
+    bestMobilityStations.forEach((station) => {
+        stationName = station["Name"]
+        easting = station["easting"]
+        northing = station["northing"]
+        marker = L.marker([northing, easting])
+        stationMarkers.push(marker)
+        marker.addTo(map).bindPopup(stationName);
+    }
+    )
 }
+
+// add event listener to slider
+slider.addEventListener("input", () => {
+    showBestMobilityStations(slider.value);
+});
+
 
 // add event listener to button 'search'
 searchButton.addEventListener("click", () => {
