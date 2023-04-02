@@ -32,8 +32,6 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 
-
-
 const orig = document.querySelector("#orig");
 const dest = document.querySelector("#dest");
 const origCoords = document.querySelector(".orig-coords");
@@ -43,10 +41,13 @@ destCoords.value = "Zielkoordinaten: "
 const searchButton = document.querySelector(".run-search");
 const slider = document.querySelector(".slider");
 
+
+// Dynamic data
 let bestMobilityStationsPerVTTS = null;
 let origMarker = null;
 let destMarker = null;
 let stationMarkers = [];
+
 
 // Add a contextmenu event listener to the map
 map.on('contextmenu', function (e) {
@@ -67,28 +68,28 @@ map.on('contextmenu', function (e) {
     const destField = formElement.querySelector("#destField");
 
     origField.addEventListener('click', function (event) {
-        console.log(`origField clicked: ${e.latlng}`);
         setOrigMarker([e.latlng.lat, e.latlng.lng], e.latlng);
         map.closePopup(popup);
     });
 
     destField.addEventListener('click', function (event) {
-        console.log(`destField clicked: ${e.latlng}`);
         setDestMarker([e.latlng.lat, e.latlng.lng], e.latlng);
         map.closePopup(popup);
     });
 });
 
+
 function setOrigMarker(coords, popup_text) {
     setOrigOrStartMarker("orig", coords, popup_text);
 }
+
 
 function setDestMarker(coords, popup_text) {
     setOrigOrStartMarker("dest", coords, popup_text);
 }
 
+
 function setOrigOrStartMarker(origOrDest, coords, popupt_text) {
-    console.log(coords);
     clearStationData();
     if (origOrDest == "orig") {
         if (origMarker != null) {
@@ -116,7 +117,6 @@ function setOrigOrStartMarker(origOrDest, coords, popupt_text) {
 
     marker.on("dragend", function (e) {
         const coords = e.target.getLatLng();
-        console.log(`dragend: ${coords}`)
         if (origOrDest == "orig") {
             field = origCoords;
             orig.value = "";
@@ -144,6 +144,7 @@ function setOrigOrStartMarker(origOrDest, coords, popupt_text) {
     checkForSearch();
 }
 
+
 function results({ currentValue, matches, template }) {
     const regex = new RegExp(currentValue, "i");
     // checking if we have results if we don't
@@ -163,6 +164,7 @@ function results({ currentValue, matches, template }) {
             .join("");
 }
 
+
 function nominatim(currentValue) {
     const api = `https://nominatim.openstreetmap.org/search?format=geojson&limit=5&q=${encodeURI(
         currentValue
@@ -180,6 +182,7 @@ function nominatim(currentValue) {
     });
 }
 
+
 function clearStationMarkers() {
     stationMarkers.forEach((marker) => {
         marker.remove();
@@ -187,11 +190,13 @@ function clearStationMarkers() {
     stationMarkers = [];
 }
 
+
 function clearStationData() {
     clearStationMarkers();
     bestMobilityStationsPerVTTS = null;
     checkForSlider();
 }
+
 
 function onNewAdress(point, object) {
     const display_name = object.properties.display_name;
@@ -201,18 +206,13 @@ function onNewAdress(point, object) {
 
 
 function getBestMobilityStations() {
-
     clearStationData();
-
     // get result form an rest interface
     const api = `http://127.0.0.1:5000/api/get-best-mobility-stations?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${destMarker._latlng.lng}&dest_northing=${destMarker._latlng.lat}`;
-
-
     // fetch data
     fetch(api)
         .then((response) => response.json())
         .then((data) => {
-            console.log(data)
             bestMobilityStationsPerVTTS = JSON.parse(data);
             if (checkForSlider()) {
                 const vTTS = slider.value;
@@ -220,6 +220,7 @@ function getBestMobilityStations() {
             }
         })
 }
+
 
 function showBestMobilityStations(vTTS) {
     clearStationMarkers();
@@ -235,13 +236,12 @@ function showBestMobilityStations(vTTS) {
     )
 }
 
-// add event listener to slider
+
 slider.addEventListener("input", () => {
     showBestMobilityStations(slider.value);
 });
 
 
-// add event listener to button 'search'
 searchButton.addEventListener("click", () => {
     // get best mobility stations
     getBestMobilityStations();
@@ -251,6 +251,7 @@ searchButton.addEventListener("click", () => {
 function updateTextField(element, newText) {
     element.textContent = newText;
 }
+
 
 function checkForSearch() {
     if (origMarker != null && destMarker != null) {
@@ -262,6 +263,7 @@ function checkForSearch() {
         return false;
     }
 }
+
 
 function checkForSlider() {
     if (bestMobilityStationsPerVTTS != null) {
