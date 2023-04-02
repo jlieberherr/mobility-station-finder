@@ -58,9 +58,11 @@ def read_skim(path_to_skim_mtx):
 
 
 def get_gdf_point_with_npvm_zone_id(point_easting_northing, gdf_npvm_zones):
+    log_start("getting npvm zone id for point {}".format(point_easting_northing), log)
     point = Point(point_easting_northing[0], point_easting_northing[1])
     gdf_point = gpd.GeoDataFrame({GEOMETRY: [point]}, crs="{}:{}".format(EPSG, CRS_EPSG_ID_WGS84))
     gdf_point_with_zone = gpd.sjoin(gdf_point, gdf_npvm_zones)[[NPVM_ID, NPVM_N_GEM, GEOMETRY]]
+    log_end()
     return gdf_point_with_zone
 
 
@@ -81,9 +83,11 @@ def get_potential_mobility_stations(gdf_orig_with_npvm_zone_id, gdf_dest_with_np
     dest_zone_id = get_npvm_zone_id(gdf_dest_with_npvm_zone_id)
     jrta_orig_dest = get_skim(orig_zone_id, dest_zone_id, skim_jrta)
     potential_stations_ids = []
+    orig_to_all = skim_jrta.sel(origins=orig_zone_id)
+    all_to_dest = skim_jrta.sel(destinations=dest_zone_id)
     for station_id, zone_id in gdf_mobilty_stations_with_npvm_zone[[MOBILITY_STATIONSNUMMER, NPVM_ID]].values.tolist():
-        jrta_orig_station = get_skim(orig_zone_id, zone_id, skim_jrta)
-        jrta_station_dest = get_skim(zone_id, dest_zone_id, skim_jrta)
+        jrta_orig_station = orig_to_all.sel(destinations=zone_id).matrix.item()
+        jrta_station_dest = all_to_dest.sel(origins=zone_id).matrix.item()
         if jrta_orig_station + jrta_station_dest <= factor * jrta_orig_dest + constant:
             potential_stations_ids += [station_id]
     df_potential_station_ids = pd.DataFrame(potential_stations_ids, columns=[MOBILITY_STATIONSNUMMER])
@@ -99,6 +103,7 @@ def collect_data_on_potential_npvm_zones(gdf_orig_with_npvm_zone_id, gdf_dest_wi
     list_potential_mobility_stations = list(gdf_potential_mobility_stations.to_dict("records"))
 
     # get road distances and durations from potential mobility stations to destination from osrm
+    # TODO(make a function here and split request into smaller chunks)
     coords_str = "{},{}".format(gdf_dest_with_npvm_zone_id[GEOMETRY].x.item(),
                                 gdf_dest_with_npvm_zone_id[GEOMETRY].y.item())
     for pot_mob_st in list_potential_mobility_stations:
@@ -169,6 +174,7 @@ def calc_best_mobility_stations_per_vtt(gdf_potential_mobility_stations_with_dat
 def get_best_mobility_stations_per_vtt(orig_easting_northing, dest_easting_northing, gdf_npvm_zones,
                                        gdf_mobilty_stations_with_npvm_zone,
                                        skim_jrta, skim_ntr, output_type=OUTPUT_TYPE_GDF):
+    # TODO(return a  dict with station ids per vtt and a dict with station data per station id)
     log_start("searching best mobility stations from {} to {}".format(orig_easting_northing, dest_easting_northing),
               log)
     gdf_orig_with_npvm_zone_id = get_gdf_point_with_npvm_zone_id(orig_easting_northing, gdf_npvm_zones)
@@ -183,10 +189,11 @@ def get_best_mobility_stations_per_vtt(orig_easting_northing, dest_easting_north
     gdf_potential_mobility_stations_with_data[EASTING] = gdf_potential_mobility_stations_with_data[GEOMETRY].x
     gdf_potential_mobility_stations_with_data[NORTHING] = gdf_potential_mobility_stations_with_data[GEOMETRY].y
     gdf_potential_mobility_stations_with_data = gdf_potential_mobility_stations_with_data.drop([GEOMETRY], axis=1)
+    log_start("calculating best mobility stations per vtt", log)
     best_mobility_stations_per_vtt = {
         vtt: calc_best_mobility_stations_per_vtt(gdf_potential_mobility_stations_with_data, vtt,
                                                  output_type=output_type) for vtt in range(0, 101)}
-
+    log_end()
     gdf_potential_mobility_stations_with_data = gdf_potential_mobility_stations_with_data.drop([KOSTEN_CHF], axis=1)
     log_end()
     return best_mobility_stations_per_vtt, gdf_potential_mobility_stations_with_data
