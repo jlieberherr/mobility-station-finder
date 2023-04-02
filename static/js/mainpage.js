@@ -156,7 +156,7 @@ function showBestMobilityStations(vTTS) {
         stationName = station["Name"]
         easting = station["easting"]
         northing = station["northing"]
-        marker = L.marker([northing, easting])
+        marker = L.circleMarker([northing, easting], { fillColor: "red" , color: "red"})
         stationMarkers.push(marker)
         marker.addTo(map).bindPopup(stationName);
     }
@@ -197,7 +197,7 @@ window.addEventListener("DOMContentLoaded", function () {
                     destMarker.remove();
                 }
             },
-                // the method presents no results
+            // the method presents no results
             noResults: ({ currentValue, template }) =>
                 template(`<li>No results found: "${currentValue}"</li>`),
         });
