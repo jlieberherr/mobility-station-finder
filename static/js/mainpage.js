@@ -16,6 +16,14 @@ const lng = 8.222665776;
 // calling map
 const map = L.map("map", config).setView([lat, lng], zoom);
 
+var origIcon = new L.Icon({
+    iconUrl: 'static/resources/marker-icon-red.png',
+});
+
+var destIcon = new L.Icon({
+    iconUrl: 'static/resources/marker-icon-blue.png',
+});
+
 // Used to load and display tile layers on the map
 // Most tile servers require attribution, which you can set under `Layer`
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -89,17 +97,20 @@ function addMarkerToMap(point, object) {
             origMarker.remove();
         }
         title = `Startpunkt: ${display_name}`
+        icon = origIcon;
     }
     else if (point == "dest") {
         if (destMarker != null) {
             destMarker.remove();
         }
         title = `Endpunkt: ${display_name}`;
+        icon = destIcon;
     }
 
     const marker = L.marker(coords, {
         title: title,
         draggable: true,
+        icon: icon,
     });
 
     if (point == "orig") {
