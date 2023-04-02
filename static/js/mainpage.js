@@ -34,6 +34,20 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 
 
+const orig = document.querySelector("#orig");
+const dest = document.querySelector("#dest");
+const origCoords = document.querySelector(".orig-coords");
+origCoords.value = "Startkoordinaten: "
+const destCoords = document.querySelector(".dest-coords");
+destCoords.value = "Zielkoordinaten: "
+const searchButton = document.querySelector(".run-search");
+const slider = document.querySelector(".slider");
+
+let bestMobilityStationsPerVTTS = null;
+let origMarker = null;
+let destMarker = null;
+let stationMarkers = [];
+
 // Add a contextmenu event listener to the map
 map.on('contextmenu', function (e) {
     // Create the popup content
@@ -54,33 +68,81 @@ map.on('contextmenu', function (e) {
 
     origField.addEventListener('click', function (event) {
         console.log(`origField clicked: ${e.latlng}`);
+        setOrigMarker([e.latlng.lat, e.latlng.lng], e.latlng);
         map.closePopup(popup);
     });
 
     destField.addEventListener('click', function (event) {
         console.log(`destField clicked: ${e.latlng}`);
+        setDestMarker([e.latlng.lat, e.latlng.lng], e.latlng);
         map.closePopup(popup);
     });
 });
 
+function setOrigMarker(coords, popup_text) {
+    setOrigOrStartMarker("orig", coords, popup_text);
+}
 
+function setDestMarker(coords, popup_text) {
+    setOrigOrStartMarker("dest", coords, popup_text);
+}
 
+function setOrigOrStartMarker(origOrDest, coords, popupt_text) {
+    console.log(coords);
+    clearStationData();
+    if (origOrDest == "orig") {
+        if (origMarker != null) {
+            origMarker.remove();
+        }
+        title = `Startpunkt: ${popupt_text}`
+        icon = origIcon;
+        updateTextField(origCoords, `${origCoords.value}${coords[0]}, ${coords[1]}`)
+    }
+    else if (origOrDest == "dest") {
+        if (destMarker != null) {
+            destMarker.remove();
+        }
+        title = `Endpunkt: ${popupt_text}`;
+        icon = destIcon;
+        updateTextField(destCoords, `${destCoords.value}${coords[0]}, ${coords[1]}`)
+    }
+    const marker = L.marker(coords, {
+        title: title,
+        draggable: true,
+        icon: icon,
+    });
 
+    marker.addTo(map).bindPopup(title);
 
+    marker.on("dragend", function (e) {
+        const coords = e.target.getLatLng();
+        console.log(`dragend: ${coords}`)
+        if (origOrDest == "orig") {
+            field = origCoords;
+            orig.value = "";
+            text = `${origCoords.value}${coords.lat}, ${coords.lng}`
+        }
+        else if (origOrDest == "dest") {
+            field = destCoords;
+            dest.value = "";
+            text = `${destCoords.value}${coords.lat}, ${coords.lng}`
+        }
+        e.target.setPopupContent(coords);
+        updateTextField(field, text)
+        checkForSearch();
+        clearStationData();
+        checkForSlider();
 
-const orig = document.querySelector("#orig");
-const dest = document.querySelector("#dest");
-const origCoords = document.querySelector(".orig-coords");
-origCoords.value = "Startkoordinaten: "
-const destCoords = document.querySelector(".dest-coords");
-destCoords.value = "Zielkoordinaten: "
-const searchButton = document.querySelector(".run-search");
-const slider = document.querySelector(".slider");
+    });
 
-let bestMobilityStationsPerVTTS = null;
-let origMarker = null;
-let destMarker = null;
-let stationMarkers = [];
+    if (origOrDest == "orig") {
+        origMarker = marker;
+    }
+    else if (origOrDest == "dest") {
+        destMarker = marker;
+    }
+    checkForSearch();
+}
 
 function results({ currentValue, matches, template }) {
     const regex = new RegExp(currentValue, "i");
@@ -118,75 +180,23 @@ function nominatim(currentValue) {
     });
 }
 
-function clearStationData() {
+function clearStationMarkers() {
     stationMarkers.forEach((marker) => {
         marker.remove();
     });
     stationMarkers = [];
+}
+
+function clearStationData() {
+    clearStationMarkers();
     bestMobilityStationsPerVTTS = null;
     checkForSlider();
 }
 
-function addMarkerToMap(point, object) {
-
-    clearStationData();
-
+function onNewAdress(point, object) {
     const display_name = object.properties.display_name;
     const coords = object.geometry.coordinates.reverse();
-
-    if (point == "orig") {
-        if (origMarker != null) {
-            origMarker.remove();
-        }
-        title = `Startpunkt: ${display_name}`
-        icon = origIcon;
-        updateTextField(origCoords, `${origCoords.value}${coords[0]}, ${coords[1]}`)
-    }
-    else if (point == "dest") {
-        if (destMarker != null) {
-            destMarker.remove();
-        }
-        title = `Endpunkt: ${display_name}`;
-        icon = destIcon;
-        updateTextField(destCoords, `${destCoords.value}${coords[0]}, ${coords[1]}`)
-    }
-
-    const marker = L.marker(coords, {
-        title: title,
-        draggable: true,
-        icon: icon,
-    });
-
-    marker.addTo(map).bindPopup(title);
-
-    marker.on("dragend", function (e) {
-        const coords = e.target.getLatLng();
-        console.log(`dragend: ${coords}`)
-        if (point == "orig") {
-            field = origCoords;
-            orig.value = "";
-        }
-        else if (point == "dest") {
-            field = destCoords;
-            dest.value = "";
-        }
-        updateTextField(field, `${field.value}${coords.lat}, ${coords.lng}`)
-        checkForSearch();
-        clearStationData();
-        checkForSlider();
-
-    });
-
-
-    if (point == "orig") {
-        origMarker = marker;
-    }
-    else if (point == "dest") {
-        destMarker = marker;
-    }
-
-    checkForSearch();
-
+    setOrigOrStartMarker(point, coords, display_name);
 }
 
 
@@ -212,6 +222,7 @@ function getBestMobilityStations() {
 }
 
 function showBestMobilityStations(vTTS) {
+    clearStationMarkers();
     bestMobilityStations = bestMobilityStationsPerVTTS[vTTS];
     bestMobilityStations.forEach((station) => {
         stationName = station["Name"]
@@ -275,7 +286,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
             onResults: (object) => results(object),
 
-            onSubmit: ({ object }) => addMarkerToMap(point, object),
+            onSubmit: ({ object }) => onNewAdress(point, object),
 
             onReset: () => {
                 if (point == "orig") {
