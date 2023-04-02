@@ -50,10 +50,20 @@ body {
     width: 5%;
 }
 
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
 .slider {
 	width: 25%;
 	margin-top: 28px;
 }
+
+slider:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
 .origDest label {
     display: block;

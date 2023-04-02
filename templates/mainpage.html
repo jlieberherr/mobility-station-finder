@@ -21,31 +21,32 @@
 <body>
 <div class="origDest">
     <div class="orig">
-        <label for="orig">Startpunkt</label>
+        <label for="orig">Suche Startadresse</label>
         <div class="auto-search-wrapper">
             <input
                     type="text"
                     autocomplete="off"
                     id="orig"
-                    placeholder="Startpunkt"
+                    placeholder="Suche Startpunkt"
             />
         </div>
+        <div class="orig-coords">Startkoordinaten: </div>
     </div>
     <div class="dest">
-        <label for="dest">Zielpunkt</label>
+        <label for="dest">Suche Zieladresse</label>
         <div class="auto-search-wrapper">
             <input
                     type="text"
                     autocomplete="off"
                     id="dest"
-                    placeholder="Zielpunkt"
+                    placeholder="Suche Zielpunkt"
             />
         </div>
+        <div class="dest-coords">Zielkoordinaten: </div>
     </div>
-    <button class="run-search">Suche</button>
-    <input class="slider" type="range" min="1" max="100" value="50">
+    <button class="run-search" disabled>Suche</button>
+    <input class="slider" type="range" min="1" max="100" value="50" disabled>
 </div>
-<div class="info">Wähle Start- und Zielpunkt aus</div>
 <div id="map"></div>
 <script src="{{ url_for('static', filename='js/mainpage.js') }}"></script>
 </body>
