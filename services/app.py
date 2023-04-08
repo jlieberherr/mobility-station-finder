@@ -5,13 +5,15 @@ import logging
 import os
 
 from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, MOBILITY_STATIONS_FILE_NAME, PT_JRTA_FILE_NAME, \
-    PT_NTR_FILE_NAME
+    PT_NTR_FILE_NAME, OUTPUT_FOLDER, LOG_NAME
 from scripts.constants import OUTPUT_TYPE_DICT
 from scripts.functions import get_gdf_npvm_zones, get_gdf_mobilty_stations, get_gdf_mobilty_stations_with_npvm_zone, \
     read_skim, get_best_mobility_stations_per_vtt
-from scripts.helpers.my_logging import log_start, log_end
+from scripts.helpers.my_logging import log_start, log_end, init_logging
 
 log = logging.getLogger(__name__)
+
+init_logging(OUTPUT_FOLDER, LOG_NAME)
 
 path_npvm_zones = os.path.join(RESOURCES, NPVM_ZONES_SHP_FILE_NAME)
 path_mobility_stations = os.path.join(RESOURCES, MOBILITY_STATIONS_FILE_NAME)

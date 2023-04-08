@@ -12,6 +12,8 @@ NPVM_ZONES_SHP_FILE_NAME = "Verkehrszonen_Schweiz_NPVM_2017_shp.zip"
 PT_JRTA_FILE_NAME = "140_JRTA_(OEV).mtx"
 PT_NTR_FILE_NAME = "144_NTR_(OEV).mtx"
 
+OUTPUT = "output"
+OUTPUT_FOLDER = join(os.getcwd(), OUTPUT)
 LOG_NAME = "log.log"  # name of the log file.
 
 CRS_EPSG_ID_WGS84 = 4326
