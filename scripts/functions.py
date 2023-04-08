@@ -217,6 +217,7 @@ def get_best_mobility_stations_per_vtt(orig_easting_northing, dest_easting_north
                                        gdf_mobility_stations_with_npvm_zone,
                                        skim_jrta, skim_ntr, output_type=OUTPUT_TYPE_GDF):
     # TODO(return a  dict with station ids per vtt and a dict with station data per station id)
+    # TODO(add exact road routing in the result)
     log_start("searching best mobility stations from {} to {}".format(orig_easting_northing, dest_easting_northing),
               log)
     gdf_orig_with_npvm_zone_id = get_gdf_point_with_npvm_zone_id(orig_easting_northing, gdf_npvm_zones)
