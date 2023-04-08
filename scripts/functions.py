@@ -178,7 +178,11 @@ def get_best_mobility_stations_per_vtt(orig_easting_northing, dest_easting_north
     log_start("searching best mobility stations from {} to {}".format(orig_easting_northing, dest_easting_northing),
               log)
     gdf_orig_with_npvm_zone_id = get_gdf_point_with_npvm_zone_id(orig_easting_northing, gdf_npvm_zones)
+    if len(gdf_orig_with_npvm_zone_id) == 0:
+        raise ValueError("no npvm zone found for orig")
     gdf_dest_with_npvm_zone_id = get_gdf_point_with_npvm_zone_id(dest_easting_northing, gdf_npvm_zones)
+    if len(gdf_dest_with_npvm_zone_id) == 0:
+        raise ValueError("no npvm zone found for dest")
     gdf_potential_mobility_stations = get_potential_mobility_stations(gdf_orig_with_npvm_zone_id,
                                                                       gdf_dest_with_npvm_zone_id,
                                                                       gdf_mobilty_stations_with_npvm_zone, skim_jrta)

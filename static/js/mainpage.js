@@ -211,7 +211,14 @@ function getBestMobilityStations() {
     const api = `http://127.0.0.1:5000/api/get-best-mobility-stations?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${destMarker._latlng.lng}&dest_northing=${destMarker._latlng.lat}`;
     // fetch data
     fetch(api)
-        .then((response) => response.json())
+        .then((response) => {
+            console.log(response.status);
+            if (response.status == 500) {
+                alert("Es ist ein unbekannter Fehler aufgetreten. Bitte versuchen Sie es mit anderen Start- und Zielkoordinaten oder versuchen Sie es später erneut.");
+                throw new Error(response);
+            }
+            
+            return response.json();})
         .then((data) => {
             bestMobilityStationsPerVTTS = JSON.parse(data);
             if (checkForSlider()) {
@@ -219,6 +226,9 @@ function getBestMobilityStations() {
                 showBestMobilityStations(vTTS);
             }
         })
+        .catch((error) => {
+            console.error(error);
+        });
 }
 
 
