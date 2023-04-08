@@ -165,12 +165,16 @@ def collect_data_on_potential_npvm_zones(gdf_orig_with_npvm_zone_id, gdf_dest_wi
     return gdf_potential_mobility_stations_with_data
 
 
-def execute_road_routing(list_potential_mobility_stations, gdf_dest_with_npvm_zone_id, chunk_size=150):
+def execute_road_routing(list_potential_mobility_stations, gdf_dest_with_npvm_zone_id, chunk_size=200):
+    log_start("executing road routing. # mobility stations: {}".format(len(list_potential_mobility_stations)), log)
     road_distances_from_mob_stat_to_dest_per_statnr = {}
     road_durations_from_mob_stat_to_dest_per_statnr = {}
-    chunks_potential_mobility_stations = [list_potential_mobility_stations[i:i + 150] for i in
+    chunks_potential_mobility_stations = [list_potential_mobility_stations[i:i + chunk_size] for i in
                                           range(0, len(list_potential_mobility_stations), chunk_size)]
-    for chunk in chunks_potential_mobility_stations:
+    log.info("number of road routing chunks: {}".format(len(chunks_potential_mobility_stations)))
+    for nr, chunk in enumerate(chunks_potential_mobility_stations):
+        log_start(
+            "road routing chunk {}/{}, # = {}".format(nr + 1, len(chunks_potential_mobility_stations), len(chunk)), log)
         coords_str = "{},{}".format(gdf_dest_with_npvm_zone_id[GEOMETRY].x.item(),
                                     gdf_dest_with_npvm_zone_id[GEOMETRY].y.item())
         for pot_mob_st in chunk:
@@ -182,6 +186,8 @@ def execute_road_routing(list_potential_mobility_stations, gdf_dest_with_npvm_zo
         for n, x in enumerate(chunk):
             road_distances_from_mob_stat_to_dest_per_statnr[x[MOBILITY_STATIONSNUMMER]] = res[DISTANCES][n + 1][0]
             road_durations_from_mob_stat_to_dest_per_statnr[x[MOBILITY_STATIONSNUMMER]] = res[DURATIONS][n + 1][0]
+        log_end()
+    log_end()
     return road_distances_from_mob_stat_to_dest_per_statnr, road_durations_from_mob_stat_to_dest_per_statnr
 
 
