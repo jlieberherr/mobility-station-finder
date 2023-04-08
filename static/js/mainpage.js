@@ -89,13 +89,13 @@ function setDestMarker(coords, popup_text) {
 }
 
 
-function setOrigOrStartMarker(origOrDest, coords, popupt_text) {
+function setOrigOrStartMarker(origOrDest, coords, popup_text) {
     clearStationData();
     if (origOrDest == "orig") {
         if (origMarker != null) {
             origMarker.remove();
         }
-        title = `Startpunkt: ${popupt_text}`
+        title = `Startpunkt: ${popup_text}`
         icon = origIcon;
         updateTextField(origCoords, `${origCoords.value}${coords[0]}, ${coords[1]}`)
     }
@@ -103,7 +103,7 @@ function setOrigOrStartMarker(origOrDest, coords, popupt_text) {
         if (destMarker != null) {
             destMarker.remove();
         }
-        title = `Endpunkt: ${popupt_text}`;
+        title = `Endpunkt: ${popup_text}`;
         icon = destIcon;
         updateTextField(destCoords, `${destCoords.value}${coords[0]}, ${coords[1]}`)
     }
@@ -198,7 +198,7 @@ function clearStationData() {
 }
 
 
-function onNewAdress(point, object) {
+function onNewAddress(point, object) {
     const display_name = object.properties.display_name;
     const coords = object.geometry.coordinates.reverse();
     setOrigOrStartMarker(point, coords, display_name);
@@ -218,10 +218,10 @@ function getBestMobilityStations() {
                 throw new Error(response);
             }
             else if (response.status == 550) {
-                alert("Startpunkt liegt ausserhalb des zulässigen Bereichts")
+                alert("Startpunkt liegt ausserhalb des zulässigen Bereichs")
             }
             else if (response.status == 551) {
-                alert("Zielpunkt liegt ausserhalb des zulässigen Bereichts")
+                alert("Zielpunkt liegt ausserhalb des zulässigen Bereichs")
             }
             else if (response.status == 552) {
                 alert("Strassenrouting nicht erfolgreich. Bitte versuchen Sie es mit anderen Start- und Zielkoordinaten oder versuchen Sie es später erneut.")
@@ -306,7 +306,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
             onResults: (object) => results(object),
 
-            onSubmit: ({ object }) => onNewAdress(point, object),
+            onSubmit: ({ object }) => onNewAddress(point, object),
 
             onReset: () => {
                 if (point == "orig") {

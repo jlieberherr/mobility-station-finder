@@ -23,7 +23,7 @@ paths:
             type: number
         - name: orig_northing
           in: query
-          description: "Latitude in WGS84 of origing"
+          description: "Latitude in WGS84 of origin"
           required: true
           schema:
             type: number
@@ -47,7 +47,7 @@ paths:
         "551":
           description: "Destination not in NPVM area"
         "552":
-          description: "Road routing not successfull"
+          description: "Road routing not successful"
 
 
           
