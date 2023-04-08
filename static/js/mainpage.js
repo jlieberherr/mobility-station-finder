@@ -217,7 +217,15 @@ function getBestMobilityStations() {
                 alert("Es ist ein unbekannter Fehler aufgetreten. Bitte versuchen Sie es mit anderen Start- und Zielkoordinaten oder versuchen Sie es später erneut.");
                 throw new Error(response);
             }
-            
+            else if (response.status == 550) {
+                alert("Startpunkt liegt ausserhalb des zulässigen Bereichts")
+            }
+            else if (response.status == 551) {
+                alert("Zielpunkt liegt ausserhalb des zulässigen Bereichts")
+            }
+            else if (response.status == 552) {
+                alert("Strassenrouting nicht erfolgreich. Bitte versuchen Sie es mit anderen Start- und Zielkoordinaten oder versuchen Sie es später erneut.")
+            };
             return response.json();})
         .then((data) => {
             bestMobilityStationsPerVTTS = JSON.parse(data);

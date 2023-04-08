@@ -8,6 +8,7 @@ import geopandas as gpd
 import requests
 from matrixconverters.read_ptv import ReadPTVMatrix
 from shapely.geometry import Point
+from werkzeug.exceptions import HTTPException
 
 from params.project_params import ENCODING_UTF8, DELIMITER_SEMICOLON, CRS_EPSG_ID_WGS84, ENCODING_CP1252
 from scripts.constants import MOBILITY_STATIONSNUMMER, NPVM_ID, MOBILITY_STATIONSNAME, MOBILITY_STATIONSSTANDORT, \
@@ -17,6 +18,24 @@ from scripts.constants import MOBILITY_STATIONSNUMMER, NPVM_ID, MOBILITY_STATION
 from scripts.helpers.my_logging import log_start, log_end
 
 log = logging.getLogger(__name__)
+
+
+class OriginNotInNPVMAreaError(HTTPException):
+    """Raised when the origin is not in the NPVM areas."""
+    code = 550
+    description = "Origin not in NPVM area."
+
+
+class DestinationNotInNPVMAreaError(HTTPException):
+    """Raised when the destination is not in the NPVM areas."""
+    code = 551
+    description = "Destination not in NPVM area."
+
+
+class RoadRoutingError(HTTPException):
+    """Raised when the road routing fails."""
+    code = 552
+    description = "Road routing error."
 
 
 def get_gdf_npvm_zones(path_to_npvm_zones_shp):
@@ -106,12 +125,16 @@ def collect_data_on_potential_npvm_zones(gdf_orig_with_npvm_zone_id, gdf_dest_wi
     # TODO(make a function here and split request into smaller chunks)
     coords_str = "{},{}".format(gdf_dest_with_npvm_zone_id[GEOMETRY].x.item(),
                                 gdf_dest_with_npvm_zone_id[GEOMETRY].y.item())
-    for pot_mob_st in list_potential_mobility_stations:
-        center = pot_mob_st[GEOMETRY].centroid
-        coords_str += ";{},{}".format(center.x, center.y)
-    url = "https://router.project-osrm.org/table/v1/driving/{}?destinations=0&annotations=duration,distance".format(
-        coords_str)
-    res = requests.get(url).json()
+    try:
+        for pot_mob_st in list_potential_mobility_stations:
+            center = pot_mob_st[GEOMETRY].centroid
+            coords_str += ";{},{}".format(center.x, center.y)
+        url = "https://router.project-osrm.org/table/v1/driving/{}?destinations=0&annotations=duration,distance".format(
+            coords_str)
+        res = requests.get(url).json()
+    except Exception as e:
+        raise RoadRoutingError(
+            "could not get road distances and durations from potential mobility stations to destination ")
     road_distances_from_potential_mobility_station_to_dest_per_stationsnummer = {
         x[MOBILITY_STATIONSNUMMER]: res[DISTANCES][n + 1][0] for n, x in enumerate(list_potential_mobility_stations)}
     road_durations_from_potential_mobility_station_to_dest_per_stationsnummer = {
@@ -179,8 +202,10 @@ def get_best_mobility_stations_per_vtt(orig_easting_northing, dest_easting_north
               log)
     gdf_orig_with_npvm_zone_id = get_gdf_point_with_npvm_zone_id(orig_easting_northing, gdf_npvm_zones)
     if len(gdf_orig_with_npvm_zone_id) == 0:
-        raise ValueError("no npvm zone found for orig")
+        raise OriginNotInNPVMAreaError("no npvm zone found for orig: {}".format(orig_easting_northing))
     gdf_dest_with_npvm_zone_id = get_gdf_point_with_npvm_zone_id(dest_easting_northing, gdf_npvm_zones)
+    if len(gdf_dest_with_npvm_zone_id) == 0:
+        raise DestinationNotInNPVMAreaError("no npvm zone found for dest: {}".format(dest_easting_northing))
     if len(gdf_dest_with_npvm_zone_id) == 0:
         raise ValueError("no npvm zone found for dest")
     gdf_potential_mobility_stations = get_potential_mobility_stations(gdf_orig_with_npvm_zone_id,
