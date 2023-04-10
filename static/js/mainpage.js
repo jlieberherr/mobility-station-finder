@@ -368,7 +368,6 @@ function showBestMobilityStations(vTTS) {
                 journeyInfo["mobilityInfos"] = {"startName": this_marker._popup._content, "endName": destMarker._popup._content, "duration": duration, "distance": distance};
                 for (let i = 0; i < coords.length; i++) {
                     var point = new L.LatLng(coords[i][1], coords[i][0]);
-                    // add point to pointList
                     pointList.push(point);
                 };
                 var polyline = new L.polyline(pointList, {
@@ -381,6 +380,7 @@ function showBestMobilityStations(vTTS) {
             });
             polylineFeatureGroup.addTo(map);
         });
+        // TODO show journey info in table
     }
     )
 }
