@@ -264,11 +264,40 @@ function getTypeOfTripLeg(tripLeg){
     } else {console.log("Error: Unknown type of trip leg: " + tripLeg)};
 }
 
+function floatToHHMM(timeInMin) {
+    hours = timeInMin / 60;
+    var hh = Math.floor(hours);
+    var mm = Math.round((hours - hh) * 60.0);
+    
+    mm = mm < 10 ? '0' + mm : mm;
+    hh = hh < 10 ? '0' + hh : hh;
+    
+    return hh + ':' + mm;
+}
+
 function showBestMobilityStations(vTTS) {
     clearStationMarkers();
     bestMobilityStations = bestMobilityStationsPerVTTS[vTTS];
+    const table = document.getElementById("table");
+    var rows = table.getElementsByTagName("tr")
+    for (var i = rows.length - 1; i > 0; i--) {
+        table.deleteRow(i);
+    }
     bestMobilityStations.forEach((station) => {
         stationName = station["Name"]
+        // add column rows
+        let row = table.insertRow();
+        let firstCol = row.insertCell(0);
+        firstCol.innerHTML = stationName
+        let secondCol = row.insertCell(1);
+        secondCol.innerHTML = floatToHHMM(station["OEV_JRTA_von_Start_min"])
+        let thirdCol = row.insertCell(2);
+        thirdCol.innerHTML = station["OEV_NTR_von_Start"].toFixed(1);
+        let fourthCol = row.insertCell(3);
+        fourthCol.innerHTML = floatToHHMM(station["MIV_Zeit_bis_Ziel_min"])
+        let fifthCol = row.insertCell(4);
+        fifthCol.innerHTML = station["MIV_Distanz_bis_Ziel_km"].toFixed(1);
+        // add markers
         easting = station["easting"]
         northing = station["northing"]
         marker = L.circleMarker([northing, easting], { fillColor: "red", color: "red" })
