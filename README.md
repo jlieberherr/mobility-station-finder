@@ -11,7 +11,7 @@
 
 For activation run only step 3.
 
-Run the Flask server by ```python app_server.py``` on http://127.0.0.1:5000.
+Run the Flask server by ```python app_runner.py``` on http://127.0.0.1:5000.
 A valid url is i.e. http://127.0.0.1:5000/api/get-best-mobility-stations?orig_easting=7.423570&orig_northing=46.936620&dest_easting=7.343680184933122&dest_northing=46.551891386747386
 
 ## Server (Linux)
