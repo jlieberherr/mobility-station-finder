@@ -172,6 +172,7 @@ def execute_road_routing(list_potential_mobility_stations, gdf_dest_with_npvm_zo
     chunks_potential_mobility_stations = [list_potential_mobility_stations[i:i + chunk_size] for i in
                                           range(0, len(list_potential_mobility_stations), chunk_size)]
     log.info("number of road routing chunks: {}".format(len(chunks_potential_mobility_stations)))
+    # TODO(only the first query is fast, after it takes about 6 seconds. Hence it is better to filter here all relevant stations and then do the routing)
     for nr, chunk in enumerate(chunks_potential_mobility_stations):
         log_start(
             "road routing chunk {}/{}, # = {}".format(nr + 1, len(chunks_potential_mobility_stations), len(chunk)), log)
