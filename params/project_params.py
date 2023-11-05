@@ -9,8 +9,11 @@ RESOURCES_FOLDER = join(os.getcwd(), RESOURCES)  # path of the folder with resou
 
 MOBILITY_STATIONS_FILE_NAME = "mobility-stationen-und-fahrzeuge-schweiz.csv"
 NPVM_ZONES_SHP_FILE_NAME = "Verkehrszonen_Schweiz_NPVM_2017_shp.zip"
-PT_JRTA_FILE_NAME = "140_JRTA_(OEV).mtx"
+PT_JRTA_FILE_NAME = "DWV_2017_ÖV_Reisezeit_CH_binär.mtx"
 PT_NTR_FILE_NAME = "144_NTR_(OEV).mtx"
+PT_DIST_FILE_NAME = "DWV_2017_ÖV_Distanz_CH_binär.mtx"
+ROAD_DIST_FILE_NAME = "DWV_2017_Strasse_Distanz_CH_binär.mtx"
+ROAD_JT_FILE_NAME = "DWV_2017_Strasse_Reisezeit_CH_binär.mtx"
 
 OUTPUT = "output"
 OUTPUT_FOLDER = join(os.getcwd(), OUTPUT)

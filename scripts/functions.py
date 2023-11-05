@@ -97,7 +97,8 @@ def get_skim(from_npvm_zone_id, to_npvm_zone_id, skim_matrix):
 
 
 def get_potential_mobility_stations(gdf_orig_with_npvm_zone_id, gdf_dest_with_npvm_zone_id,
-                                    gdf_mobility_stations_with_npvm_zone, skim_jrta, factor=1.5, constant=30.0):
+                                    gdf_mobility_stations_with_npvm_zone, skim_jrta,
+                                    factor=1.5, constant=30.0):
     log_start("calculating potential mobility stations", log)
     orig_zone_id = get_npvm_zone_id(gdf_orig_with_npvm_zone_id)
     dest_zone_id = get_npvm_zone_id(gdf_dest_with_npvm_zone_id)
@@ -118,34 +119,56 @@ def get_potential_mobility_stations(gdf_orig_with_npvm_zone_id, gdf_dest_with_np
 
 
 def collect_data_on_potential_npvm_zones(gdf_orig_with_npvm_zone_id, gdf_dest_with_npvm_zone_id,
-                                         gdf_potential_mobility_stations, skim_jrta, skim_ntr):
+                                         gdf_potential_mobility_stations, skim_jrta, skim_ntr,
+                                         osrm_routing=True,
+                                         skim_road_dist=None,
+                                         skim_road_jt=None):
     log_start("collecting data on potential npvm zones", log)
+    if not osrm_routing:
+        if skim_road_jt is None or skim_road_dist is None:
+            raise ValueError("skim_road_jt and skim_road_dist must not be None if road_osrm_routing is False")
     list_potential_mobility_stations = list(gdf_potential_mobility_stations.to_dict("records"))
 
-    # get road distances and durations from potential mobility stations to destination from osrm
-    try:
-        road_dist_from_pot_mob_stat_to_dest_per_statnr, \
-            road_durations_from_pot_mob_stat_to_dest_per_statnr = execute_road_routing(list_potential_mobility_stations,
-                                                                                       gdf_dest_with_npvm_zone_id)
-    except Exception:
-        raise RoadRoutingError(
-            "could not get road distances and durations from potential mobility stations to destination ")
+    zone_ids_list = set(x.item() for x in gdf_potential_mobility_stations[[NPVM_ID]].values)
 
-    # get pt distances and durations from potential mobility stations to destination from jrta skim
-    pd_distances = pd.DataFrame(list(road_dist_from_pot_mob_stat_to_dest_per_statnr.items()),
-                                columns=[MOBILITY_STATIONSNUMMER, MIV_DISTANZ_BIS_ZIEL_KM])
-    pd_distances[MIV_DISTANZ_BIS_ZIEL_KM] = pd_distances[MIV_DISTANZ_BIS_ZIEL_KM] / 1000.0
+    if osrm_routing:
+        # get road distances and durations from potential mobility stations to destination from osrm
+        try:
+            # id is MOBILITY_STATIONSNUMMER if osrm_routing
+            road_dist_from_pot_mob_stat_to_dest_per_id, \
+                road_durations_from_pot_mob_stat_to_dest_per_id = execute_road_routing(
+                list_potential_mobility_stations,
+                gdf_dest_with_npvm_zone_id)
+        except Exception:
+            raise RoadRoutingError(
+                "could not get road distances and durations from potential mobility stations to destination ")
+    else:
+        # get road distances and durations from potential mobility stations to destination from npvm skims
+        # id is NPVM_ID if not osrm_routing
+        road_dist_from_pot_mob_stat_to_dest_per_id, \
+            road_durations_from_pot_mob_stat_to_dest_per_id = get_npvm_road_data(zone_ids_list,
+                                                                                 gdf_dest_with_npvm_zone_id,
+                                                                                 skim_road_dist,
+                                                                                 skim_road_jt)
+    col_id = MOBILITY_STATIONSNUMMER if osrm_routing else NPVM_ID
 
-    pd_durations = pd.DataFrame(list(road_durations_from_pot_mob_stat_to_dest_per_statnr.items()),
-                                columns=[MOBILITY_STATIONSNUMMER, MIV_ZEIT_BIS_ZIEL_MIN])
-    pd_durations[MIV_ZEIT_BIS_ZIEL_MIN] = pd_durations[MIV_ZEIT_BIS_ZIEL_MIN] / 60.0
+    pd_distances = pd.DataFrame(list(road_dist_from_pot_mob_stat_to_dest_per_id.items()),
+                                columns=[col_id, MIV_DISTANZ_BIS_ZIEL_KM])
+    if osrm_routing:
+        pd_distances[MIV_DISTANZ_BIS_ZIEL_KM] = pd_distances[MIV_DISTANZ_BIS_ZIEL_KM] / 1000.0
 
+    pd_durations = pd.DataFrame(list(road_durations_from_pot_mob_stat_to_dest_per_id.items()),
+                                columns=[col_id, MIV_ZEIT_BIS_ZIEL_MIN])
+    if osrm_routing:
+        pd_durations[MIV_ZEIT_BIS_ZIEL_MIN] = pd_durations[MIV_ZEIT_BIS_ZIEL_MIN] / 60.0
     # merge data with potential mobility stations
     gdf_potential_mobility_stations_with_data = pd.merge(gdf_potential_mobility_stations, pd_distances,
-                                                         on=[MOBILITY_STATIONSNUMMER])
-    gdf_potential_mobility_stations_with_data = pd.merge(gdf_potential_mobility_stations_with_data, pd_durations,
-                                                         on=[MOBILITY_STATIONSNUMMER])
-    zone_ids_list = set(x.item() for x in gdf_potential_mobility_stations[[NPVM_ID]].values)
+                                                         on=[col_id])
+    gdf_potential_mobility_stations_with_data = pd.merge(gdf_potential_mobility_stations_with_data,
+                                                         pd_durations,
+                                                         on=[col_id])
+
+    # get pt distances and durations from potential mobility stations to destination from jrta skim
     orig_zone_id = get_npvm_zone_id(gdf_orig_with_npvm_zone_id)
     jrta_list = [(x, get_skim(orig_zone_id, x, skim_jrta)) for x in zone_ids_list]
     ntr_list = [(x, get_skim(orig_zone_id, x, skim_ntr)) for x in zone_ids_list]
@@ -163,6 +186,18 @@ def collect_data_on_potential_npvm_zones(gdf_orig_with_npvm_zone_id, gdf_dest_wi
                                                                         len(gdf_potential_mobility_stations_with_data)))
     log_end()
     return gdf_potential_mobility_stations_with_data
+
+
+def get_npvm_road_data(zone_ids_list, gdf_dest_with_npvm_zone_id, skim_road_dist, skim_road_jt):
+    log_start("getting road distances and durations from potential mobility stations to destination from npvm skims",
+              log)
+    dest_npvm_zone_id = gdf_dest_with_npvm_zone_id.iloc[0][NPVM_ID]
+    road_dist_per_zone_id = {x: get_skim(x, dest_npvm_zone_id, skim_road_dist) for x in zone_ids_list}
+    road_jt_per_zone_id = {x: get_skim(x, dest_npvm_zone_id, skim_road_jt) for x in zone_ids_list}
+    print(len(road_dist_per_zone_id))
+    print(len(road_jt_per_zone_id))
+    log_end()
+    return road_dist_per_zone_id, road_jt_per_zone_id
 
 
 def execute_road_routing(list_potential_mobility_stations, gdf_dest_with_npvm_zone_id, chunk_size=200):
@@ -216,7 +251,12 @@ def calc_best_mobility_stations_per_vtt(gdf_potential_mobility_stations_with_dat
 
 def get_best_mobility_stations_per_vtt(orig_easting_northing, dest_easting_northing, gdf_npvm_zones,
                                        gdf_mobility_stations_with_npvm_zone,
-                                       skim_jrta, skim_ntr, output_type=OUTPUT_TYPE_GDF):
+                                       skim_jrta, skim_ntr,
+                                       osrm_routing=True,
+                                       skim_road_dist_npvm=None,
+                                       skim_road_jt_npvm=None,
+                                       output_type=OUTPUT_TYPE_GDF):
+    # TODO(integrate pt distance to cost calculation. Be aware of the units in pt dist and also in new pt jt skim)
     # TODO(return a  dict with station ids per vtt and a dict with station data per station id)
     # TODO(add exact road routing in the result)
     log_start("searching best mobility stations from {} to {}".format(orig_easting_northing, dest_easting_northing),
@@ -229,20 +269,27 @@ def get_best_mobility_stations_per_vtt(orig_easting_northing, dest_easting_north
         raise DestinationNotInNPVMAreaError("no npvm zone found for dest: {}".format(dest_easting_northing))
     if len(gdf_dest_with_npvm_zone_id) == 0:
         raise ValueError("no npvm zone found for dest")
-    gdf_potential_mobility_stations = get_potential_mobility_stations(gdf_orig_with_npvm_zone_id,
-                                                                      gdf_dest_with_npvm_zone_id,
-                                                                      gdf_mobility_stations_with_npvm_zone, skim_jrta)
+    if osrm_routing:
+        gdf_potential_mobility_stations = get_potential_mobility_stations(gdf_orig_with_npvm_zone_id,
+                                                                          gdf_dest_with_npvm_zone_id,
+                                                                          gdf_mobility_stations_with_npvm_zone,
+                                                                          skim_jrta)
+    else:
+        gdf_potential_mobility_stations = gdf_mobility_stations_with_npvm_zone
     gdf_potential_mobility_stations_with_data = collect_data_on_potential_npvm_zones(gdf_orig_with_npvm_zone_id,
                                                                                      gdf_dest_with_npvm_zone_id,
                                                                                      gdf_potential_mobility_stations,
-                                                                                     skim_jrta, skim_ntr)
+                                                                                     skim_jrta, skim_ntr,
+                                                                                     osrm_routing=osrm_routing,
+                                                                                     skim_road_dist=skim_road_dist_npvm,
+                                                                                     skim_road_jt=skim_road_jt_npvm)
     gdf_potential_mobility_stations_with_data[EASTING] = gdf_potential_mobility_stations_with_data[GEOMETRY].x
     gdf_potential_mobility_stations_with_data[NORTHING] = gdf_potential_mobility_stations_with_data[GEOMETRY].y
     gdf_potential_mobility_stations_with_data = gdf_potential_mobility_stations_with_data.drop([GEOMETRY], axis=1)
     log_start("calculating best mobility stations per vtt", log)
     best_mobility_stations_per_vtt = {
         vtt: calc_best_mobility_stations_per_vtt(gdf_potential_mobility_stations_with_data, vtt,
-                                                 output_type=output_type) for vtt in range(0, 101)}
+                                                 output_type=output_type) for vtt in range(0, 1001)}
     log_end()
     gdf_potential_mobility_stations_with_data = gdf_potential_mobility_stations_with_data.drop([KOSTEN_CHF], axis=1)
     log_end()
