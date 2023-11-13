@@ -4,9 +4,9 @@ import os
 
 import pytest
 
-from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, PT_JRTA_FILE_NAME, \
-    PT_NTR_FILE_NAME, MOBILITY_STATIONS_FILE_NAME
-from scripts.functions import get_gdf_point_with_npvm_zone_id, get_npvm_zone_id, get_skim, \
+from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, PT_JT_FILE_NAME, \
+    PT_NT_FILE_NAME, MOBILITY_STATIONS_FILE_NAME
+from scripts.functions import get_gdf_point_with_zone_id, get_zone_id, get_skim, \
     get_gdf_mobility_stations, get_gdf_npvm_zones, \
     get_gdf_mobility_stations_with_npvm_zone, read_skim, get_best_mobility_stations_per_vtt
 
@@ -15,8 +15,8 @@ gdf_npvm_zones = get_gdf_npvm_zones(os.path.join(RESOURCES, NPVM_ZONES_SHP_FILE_
 gdf_mobility_stations = get_gdf_mobility_stations(os.path.join(RESOURCES, MOBILITY_STATIONS_FILE_NAME))
 gdf_mobility_stations_with_npvm_zone = get_gdf_mobility_stations_with_npvm_zone(gdf_mobility_stations, gdf_npvm_zones)
 
-skim_jrta = read_skim(os.path.join(RESOURCES, PT_JRTA_FILE_NAME))
-skim_ntr = read_skim(os.path.join(RESOURCES, PT_NTR_FILE_NAME))
+skim_jrta = read_skim(os.path.join(RESOURCES, PT_JT_FILE_NAME))
+skim_ntr = read_skim(os.path.join(RESOURCES, PT_NT_FILE_NAME))
 
 
 def test_get_gdf_npvm_zones():
@@ -32,14 +32,14 @@ def test_get_gdf_mobility_stations_with_npvm_zone():
 
 
 def test_get_gdf_point_with_npvm_zone_id():
-    gdf_point_with_npvm_id = get_gdf_point_with_npvm_zone_id((7.423570, 46.936620), gdf_npvm_zones)
+    gdf_point_with_npvm_id = get_gdf_point_with_zone_id((7.423570, 46.936620), gdf_npvm_zones)
     assert len(gdf_point_with_npvm_id) == 1
     assert gdf_point_with_npvm_id.to_dict(orient="records")[0]["N_Gem"] == "Bern"
 
 
 def test_get_npvm_zone_id():
-    gdf_point_with_npvm_id = get_gdf_point_with_npvm_zone_id((7.423570, 46.936620), gdf_npvm_zones)
-    assert get_npvm_zone_id(gdf_point_with_npvm_id) == 35101026
+    gdf_point_with_npvm_id = get_gdf_point_with_zone_id((7.423570, 46.936620), gdf_npvm_zones)
+    assert get_zone_id(gdf_point_with_npvm_id) == 35101026
 
 
 def test_get_skim():

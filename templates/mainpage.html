@@ -46,7 +46,7 @@
         <div class="dest-coords">Zielkoordinaten: </div>
     </div>
     <button class="run-search" disabled>Suche</button>
-    <input class="slider" type="range" min="1" max="100" value="50" disabled>
+    <input class="slider" type="range" min="0" max="100" value="50" disabled>
 </div>
 <div class="mapTable">
     <div id="map"></div>
@@ -54,10 +54,12 @@
         <table id="table">
             <tr>
               <th>Mobility Station</th>
-              <th>ÖV-Zeit von Start bis Mobility Station [hh:mm]</th>
-              <th>Anzahl Umstiege von Start bis bis Mobility Station</th>
-              <th>MIV-Zeit von Mobility Station bis Ziel [hh:mm]</th>
-              <th>MIV-Distanz von Mobility Station bis Ziel [km]</th>
+              <th>ÖV-Zeit bis Mobility</th>
+              <th>Anzahl Umstiege bis Mobility</th>
+              <th>ÖV-Distanz bis Mobility [km]</th>
+              <th>MIV-Zeit ab Mobility</th>
+              <th>MIV-Distanz ab Mobility [km]</th>
+              <th>Kosten [CHF]</th>
             </tr>
           </table>
     </div>
