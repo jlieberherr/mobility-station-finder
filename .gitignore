@@ -1,6 +1,7 @@
 data/*.mtx
 data/*.zip
 data/*.csv
+data/*.nc
 .idea/
 
 # Byte-compiled / optimized / DLL files
