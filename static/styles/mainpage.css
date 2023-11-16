@@ -14,6 +14,7 @@ html {
 body {
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 
@@ -25,7 +26,7 @@ body {
 
 #overview {
     width: 40%;
-    height: 100%;
+    overflow-y: scroll;
 }
 
 td, th {
@@ -55,13 +56,14 @@ body {
     align-items: center;
     margin: 10px auto;
     width: 100%;
+    height: 10vh;
 }
 
 .mapTable {
     display: flex;
     margin: 10px auto;
     width: 100%;
-    height: 100%;
+    height: 90vh;
 }
 
 .origDest > * {
@@ -71,6 +73,11 @@ body {
 
 .orig, .dest {
     width: 35%;
+}
+
+#deptime {
+	width: 10%;
+	margin-top: 28px;
 }
 
 .run-search {
@@ -102,8 +109,6 @@ slider:disabled {
     font-size: 70%;
 	position: relative;
 }
-
-
 
 .info {
     position: absolute;

@@ -40,6 +40,7 @@ const destCoords = document.querySelector(".dest-coords");
 destCoords.value = "Zielkoordinaten: "
 const searchButton = document.querySelector(".run-search");
 const slider = document.querySelector(".slider");
+const timePicker = document.querySelector("#deptime");
 
 
 // Dynamic data
@@ -49,7 +50,6 @@ let destMarker = null;
 let stationMarkers = [];
 let polylineFeatureGroup = null;
 let journeyInfo = null;
-let xmlDocForTesting = null;
 
 
 // Add a contextmenu event listener to the map
@@ -350,7 +350,6 @@ function showBestMobilityStations(vTTS) {
                 .then(response => {
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(response.data, "text/xml");
-                    xmlDocForTesting = xmlDoc;
                     // iterate over all trips
                     const trip = xmlDoc.getElementsByTagName("ojp:TripResult")[0];
                     const tripLegs = trip.getElementsByTagName("ojp:TripLeg");
@@ -448,11 +447,16 @@ slider.addEventListener("input", () => {
     showBestMobilityStations(getVTTSValue());
 });
 
+timePicker.addEventListener("change", () => {
+    checkForSearch();
+});
+
 
 searchButton.addEventListener("click", () => {
     // get best mobility stations
     getBestMobilityStations();
 });
+
 
 
 function updateTextField(element, newText) {
@@ -461,7 +465,7 @@ function updateTextField(element, newText) {
 
 
 function checkForSearch() {
-    if (origMarker != null && destMarker != null) {
+    if (origMarker != null && destMarker != null && timePicker.value != '') {
         searchButton.disabled = false;
         return true;
     }
