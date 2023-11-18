@@ -18,10 +18,14 @@ const map = L.map("map", config).setView([lat, lng], zoom);
 
 var origIcon = new L.Icon({
     iconUrl: 'static/resources/marker-icon-red.png',
+    iconSize: [25, 41],
+    iconAnchor: [12.5, 41]
 });
 
 var destIcon = new L.Icon({
     iconUrl: 'static/resources/marker-icon-blue.png',
+    iconSize: [25, 41],
+    iconAnchor: [12.5, 41]
 });
 
 // Used to load and display tile layers on the map
@@ -297,7 +301,8 @@ function showBestMobilityStations(vTTS) {
     dataPerZone = queryData['data_per_zone'];
     initTable();
     const table = document.getElementById("table");
-    bestZonesCosts.forEach((zoneCost) => {
+    bestZonesCosts.sort(function(a, b) {
+        return parseFloat(a.Costs) - parseFloat(b.Costs);}).forEach((zoneCost) => {
         zone = zoneCost['zone_mobility_station'];
         cost = zoneCost['Costs'];
         ptJT = dataPerZone[zone]['pt_jt'];
@@ -318,13 +323,13 @@ function showBestMobilityStations(vTTS) {
             let secondCol = row.insertCell(1);
             secondCol.innerHTML = floatToHHMM(ptJT)
             let thirdCol = row.insertCell(2);
-            thirdCol.innerHTML = ptNT.toFixed(1);
+            thirdCol.innerHTML = ptNT.toFixed(2);
             let fourthCol = row.insertCell(3);
-            fourthCol.innerHTML = ptDist.toFixed(0)
+            fourthCol.innerHTML = ptDist.toFixed(2)
             let fifthCol = row.insertCell(4);
             fifthCol.innerHTML = floatToHHMM(roadJT);
             let sixthCol = row.insertCell(5);
-            sixthCol.innerHTML = roadDist.toFixed(0);
+            sixthCol.innerHTML = roadDist.toFixed(2);
             let seventhCol = row.insertCell(6);
             seventhCol.innerHTML = cost.toFixed(1);
             // add markers

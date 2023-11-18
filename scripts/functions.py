@@ -166,6 +166,7 @@ def run_query(orig_easting_northing, dest_easting_northing,
             EASTING: easting,
             NORTHING: northing
         }
+    log.info(f'# mobility stations: {len(infos_per_mob_station)}')
     log_end()
     return {
         BEST_MOBILITY_STATIONS_COSTS_PER_VTTS: {k: df.to_dict('records') for k, df in
