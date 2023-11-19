@@ -48,7 +48,7 @@ const timePicker = document.querySelector("#deptime");
 
 
 // Dynamic data
-let queryData = null
+let queryData = null;
 let origMarker = null;
 let destMarker = null;
 let stationMarkers = [];
@@ -255,14 +255,6 @@ function getBestMobilityStations() {
         });
 }
 
-const apiKey = "eyJvcmciOiI2NDA2NTFhNTIyZmEwNTAwMDEyOWJiZTEiLCJpZCI6IjdjZjQ3OWViZjA5ZTRhZDQ5OTFiYzgyMzM0NjA5NzkwIiwiaCI6Im11cm11cjEyOCJ9"
-
-const headers = {
-    'Authorization': `Bearer ${apiKey}`,
-    'Content-Type': 'application/xml'
-};
-
-
 function getTypeOfTripLeg(tripLeg){
     // check if "ojp:ContinuousLeg" is in the tripLeg
     if (tripLeg.getElementsByTagName("ojp:ContinuousLeg").length > 0) {
@@ -348,13 +340,20 @@ function showBestMobilityStations(vTTS) {
                 journeyInfo = {};
                 ptInfos = [];
                 var this_marker = e.target;
-                xmlDoc = getOJPTripRequestXMLObjetct(this_marker);
-                const url_ojp = 'https://api.opentransportdata.swiss/ojp2020';
-                xml_str = serializer.serializeToString(xmlDoc);
-                axios.post(url_ojp, xml_str, { headers })
+
+                const api_ojp = `http://127.0.0.1:5000/api/ojp-request?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${this_marker._latlng.lng}&dest_northing=${this_marker._latlng.lat}&dep_time=${timePicker.value}`;
+                fetch(api_ojp)
                 .then(response => {
+                    if (!response.ok) {
+                        alert("Beim Abfragen der öV-Verbindung ist ein Fehler aufgetreten");
+                        throw new Error("OJP request failed");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    xmlDocString = JSON.parse(data)['xml_str'];
                     const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(response.data, "text/xml");
+                    const xmlDoc = parser.parseFromString(xmlDocString, "text/xml");
                     // iterate over all trips
                     const trip = xmlDoc.getElementsByTagName("ojp:TripResult")[0];
                     const tripLegs = trip.getElementsByTagName("ojp:TripLeg");
@@ -528,74 +527,4 @@ window.addEventListener("DOMContentLoaded", function () {
 
     });
 });
-
-const ojp_trip_request_template = `<?xml version="1.0" encoding="utf-8"?>
-<OJP xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.siri.org.uk/siri" version="1.0" xmlns:ojp="http://www.vdv.de/ojp" xsi:schemaLocation="http://www.siri.org.uk/siri ../ojp-xsd-v1.0/OJP.xsd">
-    <OJPRequest>
-        <ServiceRequest>
-            <RequestTimestamp>2023-12-04T09:10:32.267Z</RequestTimestamp>
-            <RequestorRef>API-Explorer</RequestorRef>
-            <ojp:OJPTripRequest>
-                <RequestTimestamp>2023-12-04T09:10:32.267Z</RequestTimestamp>
-                <ojp:Origin>
-                    <ojp:PlaceRef>
-                        <ojp:GeoPosition>
-                            <Longitude>7.446683</Longitude>
-                            <Latitude>46.928306</Latitude>
-                        </ojp:GeoPosition>
-                        <ojp:LocationName>
-                            <ojp:Text>Start</ojp:Text>
-                        </ojp:LocationName>
-                    </ojp:PlaceRef>
-                    <ojp:DepArrTime>2023-12-04T10:00:00</ojp:DepArrTime>
-                </ojp:Origin>
-                <ojp:Destination>
-                    <ojp:PlaceRef>
-                        <ojp:GeoPosition>
-                            <Longitude>8.55408</Longitude>
-                            <Latitude>47.36488</Latitude>
-                        </ojp:GeoPosition>
-                        <ojp:LocationName>
-                            <ojp:Text>Ziel</ojp:Text>
-                        </ojp:LocationName>
-                    </ojp:PlaceRef>
-                </ojp:Destination>
-                <ojp:Params>
-                    <ojp:IncludeTrackSections>true</ojp:IncludeTrackSections>
-                    <ojp:IncludeLegProjection>true</ojp:IncludeLegProjection>
-                    <ojp:IncludeTurnDescription></ojp:IncludeTurnDescription>
-                    <ojp:IncludeIntermediateStops></ojp:IncludeIntermediateStops>
-                </ojp:Params>
-            </ojp:OJPTripRequest>
-        </ServiceRequest>
-    </OJPRequest>
-</OJP>`;
-
-const serializer = new XMLSerializer();
-
-function setOriginCoordinates(xmlDoc) {
-    const originNode = xmlDoc.getElementsByTagName("ojp:Origin")[0];
-    const longitude = originNode.getElementsByTagName("Longitude")[0];
-    const latitude = originNode.getElementsByTagName("Latitude")[0];
-    longitude.textContent = origMarker.getLatLng().lng;
-    latitude.textContent = origMarker.getLatLng().lat;
-}
-
-function setStationCoordinates(xmlDoc, marker) {
-    const destinationNode = xmlDoc.getElementsByTagName("ojp:Destination")[0];
-    const longitude = destinationNode.getElementsByTagName("Longitude")[0];
-    const latitude = destinationNode.getElementsByTagName("Latitude")[0];
-    const locationName = destinationNode.getElementsByTagName("ojp:LocationName")[0].getElementsByTagName("ojp:Text")[0];
-    longitude.textContent = marker.getLatLng().lng;
-    latitude.textContent = marker.getLatLng().lat;
-    locationName.textContent = marker._popup._content;
-}
-
-function getOJPTripRequestXMLObjetct(marker) {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(ojp_trip_request_template, "text/xml");
-    setOriginCoordinates(xmlDoc);
-    setStationCoordinates(xmlDoc, marker);
-    return xmlDoc;
-}
 

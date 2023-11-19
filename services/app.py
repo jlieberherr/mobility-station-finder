@@ -79,9 +79,10 @@ namespaces = {
 
 
 def set_easting_northing(tree, tag, easting, northing):
-    node_easting = tree.find('.//siri:Longitude', namespaces)
+    node = tree.find(tag, namespaces)
+    node_easting = node.find('.//siri:Longitude', namespaces)
     node_easting.text = str(easting)
-    node_northing = tree.find('.//siri:Latitude', namespaces)
+    node_northing = node.find('.//siri:Latitude', namespaces)
     node_northing.text = str(northing)
 
 
@@ -95,6 +96,7 @@ headers = {
 
 
 def execute_ojp_request(orig_easting, orig_northing, dest_easting, dest_northing, dep_time):
+    log_start(f"executing ojp request", log)
     tree = ET.fromstring(OJP_XML_STR)
 
     set_easting_northing(tree, './/ojp:Origin', orig_easting, orig_northing)
@@ -112,8 +114,9 @@ def execute_ojp_request(orig_easting, orig_northing, dest_easting, dest_northing
 
     res = requests.post(URL_OJP, data=new_xml_str, headers=headers)
 
+    log_end()
     if res.status_code != 200:
         log.error(f"OJP request failed with status code {res.status_code}")
         abort(res.status_code)
     else:
-        return res.text
+        return json.dumps({'xml_str': res.text})
