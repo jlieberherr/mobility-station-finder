@@ -210,7 +210,7 @@ function clearStationData() {
 }
 
 function getVTTSValue() {
-    ks = Object.keys(queryData['best_mobility_stations_costs_per_vtts']);
+    ks = Object.keys(queryData['best_zones_costs_per_vtts']);
     ind = Math.floor(slider.value / 100.0 * (ks.length - 1));
     return ks[ind];
 }
@@ -287,7 +287,7 @@ function initTable() {
 
 function showBestMobilityStations(vTTS) {
     clearStationMarkers();
-    bestZonesCosts = queryData['best_mobility_stations_costs_per_vtts'][vTTS];
+    bestZonesCosts = queryData['best_zones_costs_per_vtts'][vTTS];
     stationsPerZone = queryData['mobility_stations_per_zone'];
     infosPerStation = queryData['infos_per_mobility_station'];
     dataPerZone = queryData['data_per_zone'];
