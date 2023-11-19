@@ -3,11 +3,17 @@
 import json
 import logging
 import os
+import requests
+import xml.etree.ElementTree as ET
+from datetime import datetime
 
 import xarray as xr
+import yaml
+from flask import abort
 
 from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, MOBILITY_STATIONS_FILE_NAME, PT_JT_FILE_NAME, \
     PT_NT_FILE_NAME, OUTPUT_FOLDER, LOG_NAME, ROAD_DIST_FILE_NAME, ROAD_JT_FILE_NAME, PT_DIST_FILE_NAME
+from params.project_params import OJP_XML_STR, URL_OJP
 from scripts.functions import get_gdf_npvm_zones, get_gdf_mobility_stations, get_gdf_mobility_stations_with_npvm_zone, \
     run_query
 from scripts.helpers.my_logging import log_start, log_end, init_logging
@@ -23,6 +29,8 @@ path_pt_ntr = os.path.join(RESOURCES, PT_NT_FILE_NAME)
 path_pt_dist = os.path.join(RESOURCES, PT_DIST_FILE_NAME)
 path_road_dist = os.path.join(RESOURCES, ROAD_DIST_FILE_NAME)
 path_road_jt = os.path.join(RESOURCES, ROAD_JT_FILE_NAME)
+
+path_config = os.path.join(RESOURCES, "config.yaml")
 
 
 class DataContainer:
@@ -61,3 +69,51 @@ def execute_query(orig_easting, orig_northing, dest_easting, dest_northing):
                     DataContainer.road_dist
                     )
     return json.dumps(res)
+
+
+namespaces = {
+    'ojp': 'http://www.vdv.de/ojp',
+    'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+    'siri': 'http://www.siri.org.uk/siri'
+}
+
+
+def set_easting_northing(tree, tag, easting, northing):
+    node_easting = tree.find('.//siri:Longitude', namespaces)
+    node_easting.text = str(easting)
+    node_northing = tree.find('.//siri:Latitude', namespaces)
+    node_northing.text = str(northing)
+
+
+with open(path_config, 'r') as f:
+    api_key = yaml.safe_load(f)['ojp_api_key']
+
+headers = {
+    'Authorization': f'Bearer {api_key}',
+    'Content-Type': 'application/xml'
+}
+
+
+def execute_ojp_request(orig_easting, orig_northing, dest_easting, dest_northing, dep_time):
+    tree = ET.fromstring(OJP_XML_STR)
+
+    set_easting_northing(tree, './/ojp:Origin', orig_easting, orig_northing)
+    set_easting_northing(tree, './/ojp:Destination', dest_easting, dest_northing)
+
+    current_time = datetime.utcnow()
+    req_time = current_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    node_request_time = tree.find('.//siri:RequestTimestamp', namespaces)
+    node_request_time.text = req_time
+
+    node_dep_time = tree.find('.//ojp:DepArrTime', namespaces)
+    node_dep_time.text = dep_time
+
+    new_xml_str = ET.tostring(tree)
+
+    res = requests.post(URL_OJP, data=new_xml_str, headers=headers)
+
+    if res.status_code != 200:
+        log.error(f"OJP request failed with status code {res.status_code}")
+        abort(res.status_code)
+    else:
+        return res.text

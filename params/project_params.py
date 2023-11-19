@@ -41,3 +41,47 @@ TESTS_OUTPUT_FOLDER = join(TESTS_FOLDER, TESTS_OUTPUT)  # path of the folder wit
 TESTS_RESOURCES = "resources"
 TESTS_RESOURCES_FOLDER = join(os.getcwd(), TESTS_RESOURCES)  # path of the folder with resources data for tests.
 TESTS_LOG_NAME = "test_log.log"  # name of the log file used for tests.
+
+URL_OJP = 'https://api.opentransportdata.swiss/ojp2020'
+
+OJP_XML_STR = '''<?xml version="1.0" encoding="utf-8"?>
+<OJP xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.siri.org.uk/siri" version="1.0" xmlns:ojp="http://www.vdv.de/ojp" xsi:schemaLocation="http://www.siri.org.uk/siri ../ojp-xsd-v1.0/OJP.xsd">
+    <OJPRequest>
+        <ServiceRequest>
+            <RequestTimestamp>2023-12-04T09:10:32.267Z</RequestTimestamp>
+            <RequestorRef>API-Explorer</RequestorRef>
+            <ojp:OJPTripRequest>
+                <RequestTimestamp>2023-12-04T09:10:32.267Z</RequestTimestamp>
+                <ojp:Origin>
+                    <ojp:PlaceRef>
+                        <ojp:GeoPosition>
+                            <Longitude>7.446683</Longitude>
+                            <Latitude>46.928306</Latitude>
+                        </ojp:GeoPosition>
+                        <ojp:LocationName>
+                            <ojp:Text>Start</ojp:Text>
+                        </ojp:LocationName>
+                    </ojp:PlaceRef>
+                    <ojp:DepArrTime>2023-12-04T10:00:00</ojp:DepArrTime>
+                </ojp:Origin>
+                <ojp:Destination>
+                    <ojp:PlaceRef>
+                        <ojp:GeoPosition>
+                            <Longitude>8.55408</Longitude>
+                            <Latitude>47.36488</Latitude>
+                        </ojp:GeoPosition>
+                        <ojp:LocationName>
+                            <ojp:Text>Ziel</ojp:Text>
+                        </ojp:LocationName>
+                    </ojp:PlaceRef>
+                </ojp:Destination>
+                <ojp:Params>
+                    <ojp:IncludeTrackSections>true</ojp:IncludeTrackSections>
+                    <ojp:IncludeLegProjection>true</ojp:IncludeLegProjection>
+                    <ojp:IncludeTurnDescription></ojp:IncludeTurnDescription>
+                    <ojp:IncludeIntermediateStops></ojp:IncludeIntermediateStops>
+                </ojp:Params>
+            </ojp:OJPTripRequest>
+        </ServiceRequest>
+    </OJPRequest>
+</OJP>'''

@@ -48,6 +48,46 @@ paths:
           description: "Destination not in NPVM area"
         "552":
           description: "Road routing not successful"
+  /ojp-request:
+    get:
+      summary: "Executes an OJP request in the backend"
+      operationId: services.app.execute_ojp_request
+      parameters:
+        - name: orig_easting
+          in: query
+          description: "Longitude in WGS84 of origin"
+          required: true
+          schema:
+            type: number
+        - name: orig_northing
+          in: query
+          description: "Latitude in WGS84 of origin"
+          required: true
+          schema:
+            type: number
+        - name: dest_easting
+          in: query
+          description: "Longitude in WGS84 of destination"
+          required: true
+          schema:
+            type: number
+        - name: dest_northing
+          in: query
+          description: "Latitude in WGS84 of destination"
+          required: true
+          schema:
+            type: number
+        - name: dep_time
+          in: query
+          description: "Departure time in ISO format"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Successfully executed OJP query"
+        "400":
+          description: "OJP request failed"
 
 
           
