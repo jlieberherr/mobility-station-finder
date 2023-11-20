@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """This module defines the functions used in the services."""
 import logging
-from collections import defaultdict
 from math import radians, sin, cos, atan2, sqrt
 
 import geopandas as gpd
@@ -17,12 +16,9 @@ from scripts.constants import MOBILITY_STATIONSNUMMER, NPVM_ID, MOBILITY_STATION
     GEOMETRY, COSTS_CHF, CHF_PER_KM_MOBILITY, MIN_PER_TRANSFER, FIRST_FILTER_FACTOR, NORTHING, EASTING, NPVM_N_GEM, \
     EPSG, \
     VTTS_CHF_PER_H_MIN, VTTS_CHF_PER_H_MAX, \
-    VTTS_CHF_PER_H_STEP, CHF_PER_KM_PT, ZONE_MOBILITY_STATION, STATION_NR, STATION_NAME, ZONE_ID, \
-    BEST_MOBILITY_STATION_COSTS_PER_VTTS, DATA_PER_MOBILITY_STATION, MOBILITY_STATIONS_PER_ZONE, \
-    INFOS_PER_MOBILITY_STATION, \
-    DISTANCES, \
-    DURATIONS, EARTH_RADIUS, SECOND_FILTER_FACTOR, FACTOR_NOT_FOOT, PENALTY_NOT_FOOT, MIV_DISTANZ_BIS_ZIEL_KM, \
-    MIV_ZEIT_BIS_ZIEL_MIN, FOOT_AREA_KM
+    VTTS_CHF_PER_H_STEP, CHF_PER_KM_PT, ZONE_ID_MOBILITY_STATION, BEST_MOBILITY_STATION_COSTS_PER_VTTS, \
+    DATA_PER_MOBILITY_STATION_ID, DISTANCES, \
+    DURATIONS, EARTH_RADIUS, SECOND_FILTER_FACTOR, FACTOR_NOT_FOOT, PENALTY_IN_MIN_NOT_FOOT, FOOT_AREA_KM, NPVM_N_KT
 from scripts.helpers.my_logging import log_start, log_end
 
 log = logging.getLogger(__name__)
@@ -46,9 +42,13 @@ class RoadRoutingError(HTTPException):
     description = "Road routing error."
 
 
+fields_zones = [NPVM_ID, GEOMETRY, NPVM_N_GEM, NPVM_N_KT]
+
+
 def get_gdf_npvm_zones(path_to_npvm_zones_shp):
     log_start("reading npvm  from {}".format(path_to_npvm_zones_shp), log)
-    gdf_npvm_zones = gpd.read_file(path_to_npvm_zones_shp, encoding=ENCODING_CP1252).to_crs(CRS_EPSG_ID_WGS84)
+    gdf_npvm_zones = gpd.read_file(path_to_npvm_zones_shp, encoding=ENCODING_CP1252).to_crs(CRS_EPSG_ID_WGS84)[
+        fields_zones]
     log_end(additional_message="# npvm zones: {}".format(len(gdf_npvm_zones)))
     return gdf_npvm_zones
 
@@ -69,10 +69,12 @@ def get_gdf_mobility_stations(path_to_mobility_stations_csv):
     return gdf_mobility_stations
 
 
+field_stations = [MOBILITY_STATIONSNUMMER, NPVM_ID, MOBILITY_STATIONSNAME, EASTING, NORTHING]
+
+
 def get_gdf_mobility_stations_with_npvm_zone(gdf_mobility_stations, gdf_npvm_zones):
     log_start("joining mobility stations with npvm zones", log)
-    gdf_mobility_stations_with_npvm_zone = gpd.sjoin(gdf_mobility_stations, gdf_npvm_zones)[
-        [MOBILITY_STATIONSNUMMER, NPVM_ID, MOBILITY_STATIONSNAME, GEOMETRY, EASTING, NORTHING]]
+    gdf_mobility_stations_with_npvm_zone = gpd.sjoin(gdf_mobility_stations, gdf_npvm_zones)[field_stations]
     log_end(
         additional_message="# mobility stations with npvm zone: {}".format(len(gdf_mobility_stations_with_npvm_zone)))
     return gdf_mobility_stations_with_npvm_zone
@@ -99,47 +101,49 @@ def calc_costs_df(df_data, vtts, pt_min_per_transfer, pt_chf_per_km, road_chf_pe
             df_data[ROAD_JT]) + pt_chf_per_km * df_data[PT_DIST] + road_chf_per_km * df_data[ROAD_DIST]
 
 
-def get_relevant_mobility_stations(df_mobility_stations_per_vtts):
-    relevant_mob_stations = []
-    for df_ in df_mobility_stations_per_vtts.values():
-        relevant_mob_stations += df_[MOBILITY_STATIONSNUMMER].to_list()
-    relevant_mob_stations = set(relevant_mob_stations)
-    return relevant_mob_stations
+def get_relevant_stations(df_stations_per_vtts):
+    relevant_stations = []
+    for df_ in df_stations_per_vtts.values():
+        relevant_stations += df_[MOBILITY_STATIONSNUMMER].to_list()
+    relevant_stations = set(relevant_stations)
+    return relevant_stations
 
 
-def execute_road_routing(list_potential_mobility_stations, gdf_dest_with_npvm_zone_id, chunk_size=200):
-    log_start("executing road routing. # mobility stations: {}".format(len(list_potential_mobility_stations)), log)
-    road_distances_from_mob_stat_to_dest_per_statnr = {}
-    road_durations_from_mob_stat_to_dest_per_statnr = {}
-    chunks_potential_mobility_stations = [list_potential_mobility_stations[i:i + chunk_size] for i in
-                                          range(0, len(list_potential_mobility_stations), chunk_size)]
-    log.info("number of road routing chunks: {}".format(len(chunks_potential_mobility_stations)))
-    for nr, chunk in enumerate(chunks_potential_mobility_stations):
+def execute_road_routing(list_stations, gdf_dest_with_zone_id, chunk_size=200):
+    log_start("executing road routing. # mobility stations: {}".format(len(list_stations)), log)
+    road_distances_from_stat_to_dest_per_station_id = {}
+    road_durations_from_stat_to_dest_per_station_id = {}
+    chunks_stations = [list_stations[i:i + chunk_size] for i in
+                       range(0, len(list_stations), chunk_size)]
+    log.info("number of road routing chunks: {}".format(len(chunks_stations)))
+    for nr, chunk in enumerate(chunks_stations):
         log_start(
-            "road routing chunk {}/{}, # = {}".format(nr + 1, len(chunks_potential_mobility_stations), len(chunk)), log)
-        coords_str = "{},{}".format(gdf_dest_with_npvm_zone_id[GEOMETRY].x.item(),
-                                    gdf_dest_with_npvm_zone_id[GEOMETRY].y.item())
-        for pot_mob_st in chunk:
-            coords_str += ";{},{}".format(pot_mob_st[EASTING], pot_mob_st[NORTHING])
+            "road routing chunk {}/{}, # = {}".format(nr + 1, len(chunks_stations), len(chunk)), log)
+        coords_str = "{},{}".format(gdf_dest_with_zone_id[GEOMETRY].x.item(),
+                                    gdf_dest_with_zone_id[GEOMETRY].y.item())
+        for st in chunk:
+            coords_str += ";{},{}".format(st[EASTING], st[NORTHING])
         url = "https://router.project-osrm.org/table/v1/driving/{}?destinations=0&annotations=duration,distance".format(
             coords_str)
         res = requests.get(url).json()
         for n, x in enumerate(chunk):
-            road_distances_from_mob_stat_to_dest_per_statnr[x[MOBILITY_STATIONSNUMMER]] = res[DISTANCES][n + 1][
+            road_distances_from_stat_to_dest_per_station_id[x[MOBILITY_STATIONSNUMMER]] = res[DISTANCES][n + 1][
                                                                                               0] / 1000.0
-            road_durations_from_mob_stat_to_dest_per_statnr[x[MOBILITY_STATIONSNUMMER]] = res[DURATIONS][n + 1][
+            road_durations_from_stat_to_dest_per_station_id[x[MOBILITY_STATIONSNUMMER]] = res[DURATIONS][n + 1][
                                                                                               0] / 60.0
         log_end()
     log_end()
-    return road_distances_from_mob_stat_to_dest_per_statnr, road_durations_from_mob_stat_to_dest_per_statnr
+    return road_distances_from_stat_to_dest_per_station_id, road_durations_from_stat_to_dest_per_station_id
 
 
-fields = ['zone_mobility_station', 'pt_jt', 'pt_nt', 'pt_dist', 'road_jt',
-          'road_dist', 'Stationsnummer', 'ID', 'Name', 'geometry', 'easting',
-          'northing']
+fields = [MOBILITY_STATIONSNUMMER, MOBILITY_STATIONSNAME, ZONE_ID_MOBILITY_STATION,
+          PT_JT, PT_NT, PT_DIST,
+          ROAD_JT, ROAD_DIST,
+          EASTING, NORTHING]
 
 
 def calc_distance(easting_1, northing_1, easting_2, northing_2):
+    """calculates the distance between two points in kilometers"""
     lat1 = radians(northing_1)
     lon1 = radians(easting_1)
     lat2 = radians(northing_2)
@@ -152,36 +156,52 @@ def calc_distance(easting_1, northing_1, easting_2, northing_2):
     return distance
 
 
+def remove_top_vvts_with_no_changes(best_stations_costs_per_vtts):
+    """removes the top vtts such that from the highest to second highest vtts the set of station is different"""
+    vtts_descending = sorted(best_stations_costs_per_vtts.keys(), reverse=True)
+    last_stations = set(best_stations_costs_per_vtts[vtts_descending[0]][MOBILITY_STATIONSNUMMER])
+    last_vtts = vtts_descending[0]
+    for vtts in vtts_descending[1:]:
+        stations = set(best_stations_costs_per_vtts[vtts][MOBILITY_STATIONSNUMMER])
+        if stations == last_stations:
+            del best_stations_costs_per_vtts[last_vtts]
+            last_stations = stations
+            last_vtts = vtts
+        else:
+            break
+
+
 def run_query(orig_easting_northing, dest_easting_northing,
               gdf_zones,
-              gdf_mobility_stations_with_npvm_zone,
+              gdf_stations_with_zone,
               pt_jt, pt_nt, pt_dist, road_jt, road_dist,
               vtts_min=VTTS_CHF_PER_H_MIN, vtts_max=VTTS_CHF_PER_H_MAX, vtts_step=VTTS_CHF_PER_H_STEP,
               min_per_transfer=MIN_PER_TRANSFER, pt_chf_per_km=CHF_PER_KM_PT, road_chf_per_km=CHF_PER_KM_MOBILITY,
-              penalty_not_foot=PENALTY_NOT_FOOT,
+              penalty_not_foot=PENALTY_IN_MIN_NOT_FOOT,
               first_filter_factor=FIRST_FILTER_FACTOR,
               second_filter_factor=SECOND_FILTER_FACTOR
               ):
+    """runs the query for the given origin and destination and returns the result as a dict"""
     log_start("searching best mobility stations from {} to {}".format(orig_easting_northing, dest_easting_northing),
               log)
-    gdf_orig_with_npvm_zone_id = get_gdf_point_with_zone_id(orig_easting_northing, gdf_zones)
-    if len(gdf_orig_with_npvm_zone_id) == 0:
+    gdf_orig_with_zone_id = get_gdf_point_with_zone_id(orig_easting_northing, gdf_zones)
+    if len(gdf_orig_with_zone_id) == 0:
         raise OriginNotInNPVMAreaError("no zone found for origin: {}".format(orig_easting_northing))
-    gdf_dest_with_npvm_zone_id = get_gdf_point_with_zone_id(dest_easting_northing, gdf_zones)
-    if len(gdf_dest_with_npvm_zone_id) == 0:
+    gdf_dest_with_zone_id = get_gdf_point_with_zone_id(dest_easting_northing, gdf_zones)
+    if len(gdf_dest_with_zone_id) == 0:
         raise DestinationNotInNPVMAreaError("no zone found for destination: {}".format(dest_easting_northing))
-    from_zone_id = get_zone_id(gdf_orig_with_npvm_zone_id)
-    to_zone_id = get_zone_id(gdf_dest_with_npvm_zone_id)
+    from_zone_id = get_zone_id(gdf_orig_with_zone_id)
+    to_zone_id = get_zone_id(gdf_dest_with_zone_id)
 
-    # filter pt matrices to origin
+    # filter pt matrices from origin to stations
     pt_jt = pt_jt.sel(origins=from_zone_id, drop=True).matrix
     pt_nt = pt_nt.sel(origins=from_zone_id, drop=True).matrix
     pt_dist = pt_dist.sel(origins=from_zone_id, drop=True).matrix
-    # filter road matrices to destination
+    # filter road matrices from stations to destination
     road_jt = road_jt.sel(destinations=to_zone_id, drop=True).matrix
     road_dist = road_dist.sel(destinations=to_zone_id, drop=True).matrix
 
-    # put into Pandas DataFrames
+    # put matrices into Pandas DataFrames
     df_pt_jt = pt_jt.to_dataframe().reset_index().rename(columns={MATRIX: PT_JT})
     df_pt_nt = pt_nt.to_dataframe().reset_index().rename(columns={MATRIX: PT_NT})
     df_pt_dist = pt_dist.to_dataframe().reset_index().rename(columns={MATRIX: PT_DIST})
@@ -192,71 +212,83 @@ def run_query(orig_easting_northing, dest_easting_northing,
     df_data = df_pt_jt
     for df in [df_pt_nt, df_pt_dist, df_road_jt, df_road_dist]:
         df_data = df_data.merge(df)
-
-    df_data = df_data.merge(gdf_mobility_stations_with_npvm_zone, left_on=ZONE_MOBILITY_STATION, right_on=NPVM_ID)[
+    # merge with stations
+    df_data = df_data.merge(gdf_stations_with_zone, left_on=ZONE_ID_MOBILITY_STATION, right_on=NPVM_ID)[
         fields]
 
     def calc_not_foot_penalty(x):
+        """calculates the penalty for not being accessible by foot as a factor between 0 and 1"""
         dist = calc_distance(orig_easting_northing[0], orig_easting_northing[1], float(x["easting"]),
                              float(x["northing"]))
         return min(dist / FOOT_AREA_KM, 1.0)
 
+    # penalty for not being accessible by foot
     df_data[FACTOR_NOT_FOOT] = df_data.apply(calc_not_foot_penalty, axis=1)
 
-    # calculate the best mobility stations per value of travel time savings
+    # calculate the best stations per value of travel time savings
     while True:
-        best_mob_stations_costs_per_vtts = {}
+        # loop until not more than 200 stations are left (osrm matrix routing accepts max 200 stations)
+        best_stations_costs_per_vtts = {}
         for vtts in range(vtts_min, vtts_max, vtts_step):
             df_data[COSTS_CHF] = calc_costs_df(df_data, vtts, min_per_transfer, pt_chf_per_km, road_chf_per_km,
                                                penalty_not_foot)
             min_costs = df_data[COSTS_CHF].min()
-            best_mob_stations_costs_per_vtts[vtts] = df_data[[MOBILITY_STATIONSNUMMER, COSTS_CHF]][
+            best_stations_costs_per_vtts[vtts] = df_data[[MOBILITY_STATIONSNUMMER, COSTS_CHF]][
                 df_data[COSTS_CHF] <= first_filter_factor * min_costs]
-            relevant_mob_stations = get_relevant_mobility_stations(best_mob_stations_costs_per_vtts)
-            df_data_relevant_mob_stations = df_data[df_data.Stationsnummer.isin(relevant_mob_stations)]
-        if len(df_data_relevant_mob_stations) <= 200:
+            relevant_stations = get_relevant_stations(best_stations_costs_per_vtts)
+            df_data_relevant_stations = df_data[df_data.Stationsnummer.isin(relevant_stations)]
+        if len(df_data_relevant_stations) <= 200:
             break
         else:
-            print(len(df_data_relevant_mob_stations))
+            print(len(df_data_relevant_stations))
             first_filter_factor -= 0.01
-    list_potential_mobility_stations = list(
-        df_data_relevant_mob_stations[[MOBILITY_STATIONSNUMMER, EASTING, NORTHING]].to_dict("records"))
+
+    # get road distances and durations from potential mobility stations to destination (by osrm car routing)
+    list_relevant_stations_for_road_routing = list(
+        df_data_relevant_stations[[MOBILITY_STATIONSNUMMER, EASTING, NORTHING]].to_dict("records"))
     try:
-        road_dist_from_pot_mob_stat_to_dest_per_id, road_durations_from_pot_mob_stat_to_dest_per_id = \
-            execute_road_routing(list_potential_mobility_stations, gdf_dest_with_npvm_zone_id)
+        road_dist_from_station_to_dest_per_station_id, road_durations_from_station_to_dest_per_station_id = \
+            execute_road_routing(list_relevant_stations_for_road_routing, gdf_dest_with_zone_id)
     except Exception:
         raise RoadRoutingError(
-            "could not get road distances and durations from potential mobility stations to destination ")
-    # prepare output
+            "could not get road distances and durations from potential mobility stations to destination")
 
-    pd_distances = pd.DataFrame(list(road_dist_from_pot_mob_stat_to_dest_per_id.items()),
+    # merge road distances and durations into DataFrame
+    pd_distances = pd.DataFrame(list(road_dist_from_station_to_dest_per_station_id.items()),
                                 columns=[MOBILITY_STATIONSNUMMER, ROAD_DIST])
-    pd_durations = pd.DataFrame(list(road_durations_from_pot_mob_stat_to_dest_per_id.items()),
+    pd_durations = pd.DataFrame(list(road_durations_from_station_to_dest_per_station_id.items()),
                                 columns=[MOBILITY_STATIONSNUMMER, ROAD_JT])
-    df_data_relevant_mob_stations = df_data_relevant_mob_stations.drop([ROAD_DIST, ROAD_JT], axis=1)
-    df_data_relevant_mob_stations = df_data_relevant_mob_stations.merge(pd_distances, on=MOBILITY_STATIONSNUMMER)
-    df_data_relevant_mob_stations = df_data_relevant_mob_stations.merge(pd_durations, on=MOBILITY_STATIONSNUMMER)
+    df_data_relevant_stations = df_data_relevant_stations.drop([ROAD_DIST, ROAD_JT],
+                                                               axis=1)  # these values will be overwritten by the new values from osr routing
+    df_data_relevant_stations = df_data_relevant_stations.merge(pd_distances, on=MOBILITY_STATIONSNUMMER)
+    df_data_relevant_stations = df_data_relevant_stations.merge(pd_durations, on=MOBILITY_STATIONSNUMMER)
 
-    best_mob_stations_costs_per_vtts = {}
+    # recalculate the best stations per value of travel time savings,
+    # now with road distances and durations from osrm routing
+    # and a stricter filter criterion.
+    best_stations_costs_per_vtts = {}
     for vtts in range(vtts_min, vtts_max, vtts_step):
-        df_data_relevant_mob_stations[COSTS_CHF] = calc_costs_df(df_data_relevant_mob_stations, vtts, min_per_transfer,
-                                                                 pt_chf_per_km, road_chf_per_km,
-                                                                 penalty_not_foot)
-        min_costs = df_data_relevant_mob_stations[COSTS_CHF].min()
-        best_mob_stations_costs_per_vtts[vtts] = df_data_relevant_mob_stations[[MOBILITY_STATIONSNUMMER, COSTS_CHF]][
-            df_data_relevant_mob_stations[COSTS_CHF] <= second_filter_factor * min_costs]
+        df_data_relevant_stations[COSTS_CHF] = calc_costs_df(df_data_relevant_stations, vtts, min_per_transfer,
+                                                             pt_chf_per_km, road_chf_per_km,
+                                                             penalty_not_foot)
+        min_costs = df_data_relevant_stations[COSTS_CHF].min()
+        best_stations_costs_per_vtts[vtts] = df_data_relevant_stations[[MOBILITY_STATIONSNUMMER, COSTS_CHF]][
+            df_data_relevant_stations[COSTS_CHF] <= second_filter_factor * min_costs]
 
-    relevant_mob_stations = get_relevant_mobility_stations(best_mob_stations_costs_per_vtts)
-    df_data_relevant_mob_stations = df_data_relevant_mob_stations[
-        df_data_relevant_mob_stations.Stationsnummer.isin(relevant_mob_stations)]
+    remove_top_vvts_with_no_changes(best_stations_costs_per_vtts)
+    # filter the DataFrame to only contain the relevant stations
+    relevant_stations = get_relevant_stations(best_stations_costs_per_vtts)
+    df_data_relevant_stations = df_data_relevant_stations[
+        df_data_relevant_stations.Stationsnummer.isin(relevant_stations)]
 
-    data_per_relevant_mob_station = df_data_relevant_mob_stations.to_dict('records')
-    data_per_relevant_mob_station = {x[MOBILITY_STATIONSNUMMER]: x for x in data_per_relevant_mob_station}
+    # prepare output
+    data_per_station_id = df_data_relevant_stations.to_dict('records')
+    data_per_station_id = {x[MOBILITY_STATIONSNUMMER]: x for x in data_per_station_id}
 
-    log.info(f'# mobility stations: {len(data_per_relevant_mob_station)}')
+    log.info(f'# mobility stations: {len(data_per_station_id)}')
     log_end()
     return {
         BEST_MOBILITY_STATION_COSTS_PER_VTTS: {k: df.to_dict('records') for k, df in
-                                               best_mob_stations_costs_per_vtts.items()},
-        DATA_PER_MOBILITY_STATION: data_per_relevant_mob_station,
+                                               best_stations_costs_per_vtts.items()},
+        DATA_PER_MOBILITY_STATION_ID: data_per_station_id,
     }
