@@ -3,6 +3,16 @@
  */
 
 // config map
+
+const env = "production";
+let apiUrl;
+
+if (env === 'production') {
+  apiUrl = 'http://172.104.139.126';
+} else {
+  apiUrl = 'http://127.0.0.1:5000';
+}
+
 let config = {
     minZoom: 2,
     maxZoom: 18,
@@ -226,7 +236,7 @@ function onNewAddress(point, object) {
 function getBestMobilityStations() {
     clearStationData();
     // get result form an rest interface
-    const api = `http://127.0.0.1:5000/api/get-best-mobility-stations?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${destMarker._latlng.lng}&dest_northing=${destMarker._latlng.lat}`;
+    const api = `${apiUrl}/api/get-best-mobility-stations?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${destMarker._latlng.lng}&dest_northing=${destMarker._latlng.lat}`;
     // fetch data
     fetch(api)
         .then((response) => {
@@ -340,7 +350,7 @@ function showBestMobilityStations(vTTS) {
             ptInfos = [];
             var this_marker = e.target;
 
-            const api_ojp = `http://127.0.0.1:5000/api/ojp-request?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${this_marker._latlng.lng}&dest_northing=${this_marker._latlng.lat}&dep_time=${timePicker.value}`;
+            const api_ojp = `${apiUrl}/api/ojp-request?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${this_marker._latlng.lng}&dest_northing=${this_marker._latlng.lat}&dep_time=${timePicker.value}`;
             fetch(api_ojp)
             .then(response => {
                 if (!response.ok) {
