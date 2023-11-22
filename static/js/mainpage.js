@@ -8,7 +8,7 @@ const env = "production";
 let apiUrl;
 
 if (env === 'production') {
-  apiUrl = 'http://172.104.139.126';
+  apiUrl = 'http://mobility-station-finder.ch';
 } else {
   apiUrl = 'http://127.0.0.1:5000';
 }
