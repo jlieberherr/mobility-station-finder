@@ -46,6 +46,8 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 
+toggleTable();
+
 const orig = document.querySelector("#orig");
 const dest = document.querySelector("#dest");
 const origCoords = document.querySelector(".orig-coords");
@@ -501,6 +503,17 @@ function checkForSlider() {
         return false;
     }
 }
+
+function toggleTable() {
+    var table = document.getElementById('overview');
+    if (table.style.display === 'none') {
+      table.style.display = 'block'; // Show the table
+      map.invalidateSize(); // Trigger map redraw
+    } else {
+      table.style.display = 'none'; // Hide the table
+      map.invalidateSize(); // Trigger map redraw
+    }
+  }
 
 
 window.addEventListener("DOMContentLoaded", function () {
