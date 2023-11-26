@@ -23,6 +23,7 @@ body {
     align-items: center;
     margin: 10px auto;
     margin-left: 10px;
+    margin-right: 10px;
     width: 100%;
     height: 10%;
 }
@@ -42,7 +43,7 @@ body {
     font-weight: 600;
     width: 5%;
     height: 44px;
-    padding: 0 20px;
+    padding: 20px;
     border-radius: 2px;
     cursor: pointer;
     transition: all 300ms ease-in-out;
