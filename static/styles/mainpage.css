@@ -74,6 +74,7 @@ button:disabled {
     flex-grow: 2;
     margin: 5px;
     align-self: center;
+    padding: 10px;
 }
 
 slider:disabled {
