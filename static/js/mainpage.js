@@ -56,7 +56,9 @@ const nbPlacesCoords = 5;
 const searchButton = document.querySelector(".run-search");
 const slider = document.querySelector(".slider");
 const timePicker = document.querySelector("#deptime");
-
+const now = new Date();
+now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+timePicker.value = now.toISOString().slice(0, 16);
 
 // Dynamic data
 let queryData = null;
