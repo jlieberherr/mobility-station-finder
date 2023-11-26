@@ -51,7 +51,8 @@ const dest = document.querySelector("#dest");
 const origCoords = document.querySelector(".orig-coords");
 origCoords.value = "Startkoordinaten: "
 const destCoords = document.querySelector(".dest-coords");
-destCoords.value = "Zielkoordinaten: "
+destCoords.value = "Zielkoordinaten: ";
+const nbPlacesCoords = 5;
 const searchButton = document.querySelector(".run-search");
 const slider = document.querySelector(".slider");
 const timePicker = document.querySelector("#deptime");
@@ -114,7 +115,7 @@ function setOrigOrStartMarker(origOrDest, coords, popup_text) {
         }
         title = `Startpunkt: ${popup_text}`
         icon = origIcon;
-        updateTextField(origCoords, `${origCoords.value}${coords[0]}, ${coords[1]}`)
+        updateTextField(origCoords, `${origCoords.value}${coords[0].toFixed(nbPlacesCoords)}, ${coords[1].toFixed(nbPlacesCoords)}`)
     }
     else if (origOrDest == "dest") {
         if (destMarker != null) {
@@ -122,7 +123,7 @@ function setOrigOrStartMarker(origOrDest, coords, popup_text) {
         }
         title = `Endpunkt: ${popup_text}`;
         icon = destIcon;
-        updateTextField(destCoords, `${destCoords.value}${coords[0]}, ${coords[1]}`)
+        updateTextField(destCoords, `${destCoords.value}${coords[0].toFixed(nbPlacesCoords)}, ${coords[1].toFixed(nbPlacesCoords)}`)
     }
     const marker = L.marker(coords, {
         title: title,
@@ -137,12 +138,12 @@ function setOrigOrStartMarker(origOrDest, coords, popup_text) {
         if (origOrDest == "orig") {
             field = origCoords;
             orig.value = "";
-            text = `${origCoords.value}${coords.lat}, ${coords.lng}`
+            text = `${origCoords.value}${coords.lat.toFixed(nbPlacesCoords)}, ${coords.lng.toFixed(nbPlacesCoords)}`
         }
         else if (origOrDest == "dest") {
             field = destCoords;
             dest.value = "";
-            text = `${destCoords.value}${coords.lat}, ${coords.lng}`
+            text = `${destCoords.value}${coords.lat.toFixed(nbPlacesCoords)}, ${coords.lng.toFixed(nbPlacesCoords)}`
         }
         e.target.setPopupContent(coords);
         updateTextField(field, text)
@@ -516,12 +517,12 @@ window.addEventListener("DOMContentLoaded", function () {
             onReset: () => {
                 if (point == "orig") {
                     origMarker.remove();
-                    updateTextField(origCoords, origCoords.value)
+                    updateTextField(origCoords, origCoords.value.toFixed(nbPlacesCoords))
                     origMarker = null;
                 }
                 else if (point == "dest") {
                     destMarker.remove();
-                    updateTextField(destCoords, destCoords.value)
+                    updateTextField(destCoords, destCoords.value.toFixed(nbPlacesCoords))
                     destMarker = null;
                 }
                 checkForSearch();

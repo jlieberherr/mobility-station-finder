@@ -18,7 +18,6 @@ body {
 .origDest {
     display: flex;
     align-items: center;
-    margin: 10px;
     flex-wrap: wrap;
 }
 
@@ -29,6 +28,7 @@ body {
 
 #deptime {
     flex-grow: 1;
+    margin: 10px;
 }
 
 .run-search {
