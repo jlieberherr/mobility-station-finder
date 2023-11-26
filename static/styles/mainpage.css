@@ -20,7 +20,7 @@ body {
 }
 
 .orig, .dest {
-    flex-grow: 4;
+    flex-grow: 5;
     margin: 5px;
     border-radius: 10px;
 }
