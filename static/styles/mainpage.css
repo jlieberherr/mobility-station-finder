@@ -1,41 +1,6 @@
-*,
-:after,
-:before {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-}
-
 html {
     width: 100%;
     height: 100%;
-}
-
-body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-
-
-#map {
-    width: 60%;
-    height: 100%;
-}
-
-#overview {
-    width: 40%;
-    overflow-y: scroll;
-}
-
-td, th {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-  }
-  tr:nth-child(even) {
-    background-color: #dddddd;
 }
 
 body {
@@ -45,30 +10,21 @@ body {
     flex-direction: column;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    min-height: 100%;
-    margin: 0;
+    margin: 10px;
     padding: 0;
     background-color: #f1f1f1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 .origDest {
     display: flex;
     align-items: center;
     margin: 10px auto;
-    width: 100%;
-    height: 10vh;
-}
-
-.mapTable {
-    display: flex;
-    margin: 10px auto;
-    width: 100%;
-    height: 90vh;
-}
-
-.origDest > * {
     margin-left: 10px;
     width: 100%;
+    height: 10%;
 }
 
 .orig, .dest {
@@ -81,7 +37,22 @@ body {
 }
 
 .run-search {
+    border: 0;
+    background: #d3d3d3;
+    color: #000;
+    font-weight: 600;
+    margin-top: 28px;
     width: 5%;
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 300ms ease-in-out;
+}
+
+.run-search:hover {
+    background: #000;
+    color: #d3d3d3;
 }
 
 button:disabled {
@@ -110,28 +81,27 @@ slider:disabled {
 	position: relative;
 }
 
-.info {
-    position: absolute;
-    padding: 4px 10px;
-    background: #fff;
-    bottom: 0;
-    z-index: 999;
+.mapTable {
+    display: flex;
+    width: 100%;
+    height: 90%;
 }
 
-.run-search {
-    border: 0;
-    background: #d3d3d3;
-    color: #000;
-    font-weight: 600;
-    margin-top: 28px;
-    height: 44px;
-    padding: 0 20px;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: all 300ms ease-in-out;
+#map {
+    width: 60%;
+    height: 100%;
 }
 
-.run-search:hover {
-    background: #000;
-    color: #d3d3d3;
+#overview {
+    width: 40%;
+    overflow-y: scroll;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+  tr:nth-child(even) {
+    background-color: #dddddd;
 }
