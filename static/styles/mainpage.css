@@ -63,7 +63,7 @@ button:disabled {
   }
 
 .slider {
-    flex-grow: 5;
+    flex-grow: 4;
     margin: 5px;
 }
 
