@@ -33,7 +33,6 @@ body {
 
 #deptime {
 	width: 10%;
-	margin-top: 28px;
 }
 
 .run-search {
@@ -41,7 +40,6 @@ body {
     background: #d3d3d3;
     color: #000;
     font-weight: 600;
-    margin-top: 28px;
     width: 5%;
     height: 44px;
     padding: 0 20px;
@@ -62,7 +60,6 @@ button:disabled {
 
 .slider {
 	width: 25%;
-	margin-top: 28px;
 }
 
 slider:disabled {
