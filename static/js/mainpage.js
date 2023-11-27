@@ -16,6 +16,7 @@ if (env === 'production') {
 let config = {
     minZoom: 2,
     maxZoom: 18,
+    fullscreenControl: true,
 };
 // magnification with which the map will start
 const zoom = 9;
@@ -63,11 +64,6 @@ toggleTable();
 
 const orig = document.querySelector("#orig");
 const dest = document.querySelector("#dest");
-const origCoords = document.querySelector(".orig-coords");
-origCoords.value = "Startkoordinaten: "
-const destCoords = document.querySelector(".dest-coords");
-destCoords.value = "Zielkoordinaten: ";
-const nbPlacesCoords = 5;
 const searchButton = document.querySelector(".run-search");
 const slider = document.querySelector(".slider");
 const timePicker = document.querySelector("#deptime");
@@ -132,7 +128,6 @@ function setOrigOrStartMarker(origOrDest, coords, popup_text) {
         }
         title = `Startpunkt: ${popup_text}`
         icon = origIcon;
-        updateTextField(origCoords, `${origCoords.value}${coords[0].toFixed(nbPlacesCoords)}, ${coords[1].toFixed(nbPlacesCoords)}`)
     }
     else if (origOrDest == "dest") {
         if (destMarker != null) {
@@ -140,7 +135,6 @@ function setOrigOrStartMarker(origOrDest, coords, popup_text) {
         }
         title = `Endpunkt: ${popup_text}`;
         icon = destIcon;
-        updateTextField(destCoords, `${destCoords.value}${coords[0].toFixed(nbPlacesCoords)}, ${coords[1].toFixed(nbPlacesCoords)}`)
     }
     const marker = L.marker(coords, {
         title: title,
@@ -153,17 +147,12 @@ function setOrigOrStartMarker(origOrDest, coords, popup_text) {
     marker.on("dragend", function (e) {
         const coords = e.target.getLatLng();
         if (origOrDest == "orig") {
-            field = origCoords;
             orig.value = "";
-            text = `${origCoords.value}${coords.lat.toFixed(nbPlacesCoords)}, ${coords.lng.toFixed(nbPlacesCoords)}`
         }
         else if (origOrDest == "dest") {
-            field = destCoords;
             dest.value = "";
-            text = `${destCoords.value}${coords.lat.toFixed(nbPlacesCoords)}, ${coords.lng.toFixed(nbPlacesCoords)}`
         }
         e.target.setPopupContent(coords);
-        updateTextField(field, text)
         checkForSearch();
         clearStationData();
         checkForSlider();
@@ -489,11 +478,6 @@ searchButton.addEventListener("click", () => {
 
 
 
-function updateTextField(element, newText) {
-    element.textContent = newText;
-}
-
-
 function checkForSearch() {
     if (origMarker != null && destMarker != null && timePicker.value != '') {
         searchButton.disabled = false;
@@ -545,12 +529,10 @@ window.addEventListener("DOMContentLoaded", function () {
             onReset: () => {
                 if (point == "orig") {
                     origMarker.remove();
-                    updateTextField(origCoords, origCoords.value.toFixed(nbPlacesCoords))
                     origMarker = null;
                 }
                 else if (point == "dest") {
                     destMarker.remove();
-                    updateTextField(destCoords, destCoords.value.toFixed(nbPlacesCoords))
                     destMarker = null;
                 }
                 checkForSearch();

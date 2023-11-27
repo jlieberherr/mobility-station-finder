@@ -74,7 +74,6 @@ button:disabled {
     flex-grow: 2;
     margin: 5px;
     align-self: center;
-    padding: 10px;
 }
 
 slider:disabled {
@@ -84,7 +83,7 @@ slider:disabled {
 .mapTable {
     display: flex;
     width: 100%;
-    height: 90%;
+    height: 94%;
 }
 
 #map {
