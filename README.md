@@ -23,7 +23,8 @@ A valid url is i.e. http://127.0.0.1:5000/api/get-best-mobility-stations?orig_ea
 6. Navigate to development folder, then ```git clone https://github.com/jlieberherr/mobility-station-finder.git```
 7. Navigate to ```mobility-station-finder```-folder, then ```pip install -r requirements_server.txt```
 
-For activation navigate to mobility-station-finder folder and run the Flask server with gunicorn by ```gunicorn -w 1 app_runner:app app_runner.py``` on http://172.104.139.126.
+For activation navigate to mobility-station-finder folder and run the Flask server with gunicorn by ```gunicorn -w 1 app_runner:app app_runner.py```.
+See [mobility-station-finder.ch](mobility-station-finder.ch).
 
 
 Hints:
