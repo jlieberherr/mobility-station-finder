@@ -92,6 +92,13 @@ slider:disabled {
     height: 100%;
 }
 
+.table-button {
+    font-size: 24px; /* Adjust the font size to make the button larger */
+    opacity: 0.7; /* Adjust the opacity to make it slightly transparent */
+    
+    border: none; /* Remove the button border */
+}
+
 
 #overview {
     overflow-y: scroll;

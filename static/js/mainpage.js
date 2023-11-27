@@ -46,6 +46,19 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 
+var tableButton = L.Control.extend({
+    onAdd: function(map) {
+        var button = L.DomUtil.create('button', 'table-button');
+        button.innerHTML = '<i class="fa fa-table"></i>';
+        button.onclick = function() {
+            toggleTable();
+        };
+        return button;
+    }
+});
+
+map.addControl(new tableButton({ position: 'topright' }));
+
 toggleTable();
 
 const orig = document.querySelector("#orig");
