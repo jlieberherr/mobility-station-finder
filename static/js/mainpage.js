@@ -16,7 +16,6 @@ if (env === 'production') {
 let config = {
     minZoom: 2,
     maxZoom: 18,
-    fullscreenControl: true,
 };
 // magnification with which the map will start
 const zoom = 9;
@@ -50,7 +49,7 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 var tableButton = L.Control.extend({
     onAdd: function(map) {
         var button = L.DomUtil.create('button', 'table-button');
-        button.innerHTML = '<i class="fa fa-table"></i>';
+        button.innerHTML = '<i class="fa-solid fa-table"></i>';
         button.onclick = function() {
             toggleTable();
         };
@@ -61,6 +60,20 @@ var tableButton = L.Control.extend({
 map.addControl(new tableButton({ position: 'topright' }));
 
 toggleTable();
+
+
+var fullScreenButton = L.Control.extend({
+    onAdd: function(map) {
+        var button = L.DomUtil.create('button', 'fullscreen-button');
+        button.innerHTML = '<i class="fa-solid fa-maximize"></i>';
+        button.onclick = function() {
+            toggleScreen(button);
+        };
+        return button;
+    }
+});
+
+map.addControl(new fullScreenButton({ position: 'topleft' }));
 
 const orig = document.querySelector("#orig");
 const dest = document.querySelector("#dest");
@@ -511,6 +524,31 @@ function toggleTable() {
       map.invalidateSize(); // Trigger map redraw
     }
   }
+
+
+  function toggleScreen(button) {
+    var origDest = document.getElementById('orig-dest');
+    if (origDest.style.display === 'none') {
+      origDest.style.display = 'flex'; //
+      changeFullScreenIcon(button);
+      map.invalidateSize(); // Trigger map redraw
+    } else {
+      origDest.style.display = 'none';
+      changeFullScreenIcon(button);
+      map.invalidateSize(); // Trigger map redraw
+    }
+  }
+
+  function changeFullScreenIcon(button) {
+    var icon = button.querySelector('i');
+    if (icon.classList.contains('fa-maximize')) {
+        icon.classList.remove('fa-maximize');
+        icon.classList.add('fa-minimize');
+    } else {
+        icon.classList.remove('fa-minimize');
+        icon.classList.add('fa-maximize');
+    }
+}
 
 
 window.addEventListener("DOMContentLoaded", function () {
