@@ -338,7 +338,7 @@ function showBestMobilityStations(vTTS) {
         sixthCol.innerHTML = floatToHHMM(roadJT);
         let seventhCol = row.insertCell(6);
         seventhCol.innerHTML = roadDist.toFixed(2);
-        let eighthCol = row.insertCell(6);
+        let eighthCol = row.insertCell(7);
         eighthCol.innerHTML = cost.toFixed(1);
             
         // add markers
