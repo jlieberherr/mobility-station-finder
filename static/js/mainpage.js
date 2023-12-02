@@ -4,7 +4,7 @@
 
 // config map
 
-const env = "production_";
+const env = "production";
 let apiUrl;
 
 if (env === 'production') {
