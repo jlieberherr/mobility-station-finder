@@ -4,7 +4,7 @@
 
 // config map
 
-const env = "production";
+const env = "production_";
 let apiUrl;
 
 if (env === 'production') {
@@ -533,17 +533,6 @@ function toggleTable() {
       map.invalidateSize(); // Trigger map redraw
     }
   }
-
-  function changeFullScreenIcon(button) {
-    var icon = button.querySelector('i');
-    if (icon.classList.contains('fa-maximize')) {
-        icon.classList.remove('fa-maximize');
-        icon.classList.add('fa-minimize');
-    } else {
-        icon.classList.remove('fa-minimize');
-        icon.classList.add('fa-maximize');
-    }
-}
 
 
 window.addEventListener("DOMContentLoaded", function () {
