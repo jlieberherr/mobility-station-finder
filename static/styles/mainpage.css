@@ -7,7 +7,6 @@ body {
     display: flex;
     flex-direction: column;
     font-family: 'Helvetica Neue', sans-serif;
-    width: 100%;
     height: 100%;
     overflow: hidden;
 }
@@ -33,7 +32,7 @@ body {
 }
 
 #deptime {
-    flex-grow: 1;
+    flex-grow: 2;
     margin: 5px;
     border: 2px solid #ccc;
     border-radius: 10px;
@@ -44,7 +43,7 @@ body {
 }
 
 .run-search {
-    flex-grow: 1;
+    flex-grow: 2;
     margin: 5px;
     background: #d3d3d3;
     color: #000;
@@ -66,20 +65,11 @@ button:disabled {
     cursor: not-allowed;
   }
 
-.slider {
-    flex-grow: 2;
-    margin: 5px;
-    align-self: center;
-}
-
-slider:disabled {
-    opacity: 0.5;
-  }
 
 .mapTable {
     display: flex;
     width: 100%;
-    height: 94%;
+    height: 100%;
 }
 
 #map {

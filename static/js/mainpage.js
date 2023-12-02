@@ -75,7 +75,6 @@ toggleTable();
 const orig = document.querySelector("#orig");
 const dest = document.querySelector("#dest");
 const searchButton = document.querySelector(".run-search");
-const slider = document.querySelector(".slider");
 const timePicker = document.querySelector("#deptime");
 const now = new Date();
 now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -89,6 +88,24 @@ let stationMarkers = [];
 let polylineFeatureGroup = null;
 let journeyInfo = null;
 
+const sliderMap = L.control.slider(function(value) {
+    if (queryData != null) {
+        showBestMobilityStations(getVTTSValue());
+    }
+}, {
+    max: 100,
+    value: 50,
+    step: 1,
+    size: '250px',
+    orientation:'vertical',
+    collapsed: false,
+    position: 'topleft',
+    title: 'Zeitwert',
+    id: 'slider-map',
+    showValue: false
+}).addTo(map);
+
+sliderMap.slider.disabled = true;
 
 // Add a contextmenu event listener to the map
 map.on('contextmenu', function (e) {
@@ -238,9 +255,10 @@ function clearStationData() {
 
 function getVTTSValue() {
     ks = Object.keys(queryData['best_stations_costs_per_vtts']);
-    ind = Math.floor(slider.value / 100.0 * (ks.length - 1));
+    ind = Math.floor(sliderMap.slider.value / 100.0 * (ks.length - 1));
     return ks[ind];
 }
+
 
 
 function onNewAddress(point, object) {
@@ -471,15 +489,9 @@ function showBestMobilityStations(vTTS) {
         });
 }
 
-
-slider.addEventListener("input", () => {
-    showBestMobilityStations(getVTTSValue());
-});
-
 timePicker.addEventListener("change", () => {
     checkForSearch();
 });
-
 
 searchButton.addEventListener("click", () => {
     // get best mobility stations
@@ -502,11 +514,11 @@ function checkForSearch() {
 
 function checkForSlider() {
     if (queryData != null) {
-        slider.disabled = false;
+        sliderMap.slider.disabled = false;
         return true;
     }
     else {
-        slider.disabled = true;
+        sliderMap.slider.disabled = true;
         return false;
     }
 }
