@@ -46,34 +46,31 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 
-var tableButton = L.Control.extend({
-    onAdd: function(map) {
-        var button = L.DomUtil.create('button', 'table-button');
-        button.innerHTML = '<i class="fa-solid fa-table"></i>';
-        button.onclick = function() {
-            toggleTable();
-        };
-        return button;
-    }
+var stateChangingButton = L.easyButton({
+    states: [{
+            stateName: 'full-screen',
+            icon:      'fa-maximize',
+            onClick: function(btn, map) {       // and its callback
+                toggleScreen();
+                btn.state('reduced-screen');    // change state on click!
+            }
+        }, {
+            stateName: 'reduced-screen',
+            icon:      'fa-minimize',
+            onClick: function(btn, map) {
+                toggleScreen();
+                btn.state('full-screen');
+            }
+    }]
 });
 
-map.addControl(new tableButton({ position: 'topright' }));
+stateChangingButton.addTo( map );
+
+L.easyButton('fa-table', function(btn, map){
+    toggleTable()
+}).addTo( map );
 
 toggleTable();
-
-
-var fullScreenButton = L.Control.extend({
-    onAdd: function(map) {
-        var button = L.DomUtil.create('button', 'fullscreen-button');
-        button.innerHTML = '<i class="fa-solid fa-maximize"></i>';
-        button.onclick = function() {
-            toggleScreen(button);
-        };
-        return button;
-    }
-});
-
-map.addControl(new fullScreenButton({ position: 'topleft' }));
 
 const orig = document.querySelector("#orig");
 const dest = document.querySelector("#dest");
@@ -526,15 +523,13 @@ function toggleTable() {
   }
 
 
-  function toggleScreen(button) {
+  function toggleScreen() {
     var origDest = document.getElementById('orig-dest');
     if (origDest.style.display === 'none') {
       origDest.style.display = 'flex'; //
-      changeFullScreenIcon(button);
       map.invalidateSize(); // Trigger map redraw
     } else {
       origDest.style.display = 'none';
-      changeFullScreenIcon(button);
       map.invalidateSize(); // Trigger map redraw
     }
   }

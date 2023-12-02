@@ -91,25 +91,6 @@ slider:disabled {
     height: 100%;
 }
 
-.table-button {
-    font-size: 30px; /* Adjust the font size to make the button larger */
-    opacity: 1.0; /* Adjust the opacity to make it slightly transparent */
-    background-color: transparent;
-    border: none; /* Remove the button border */
-}
-
-.fullscreen-button {
-    font-size: 30px; /* Adjust the font size to make the button larger */
-    width: 30px;
-    height: 30px;
-    vertical-align: middle;
-    background-color: white;
-    border: none; /* Remove the button border */
-    padding: 0;
-    opacity: 0.8; /* Adjust the opacity to make it slightly transparent */
-}
-
-
 #overview {
     overflow-y: scroll;
 }
