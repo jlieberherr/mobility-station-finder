@@ -370,7 +370,7 @@ function showBestMobilityStations(vTTS) {
         eighthCol.innerHTML = cost.toFixed(1);
             
         // add markers
-        marker = L.circleMarker([stNorthing, stEasting], { fillColor: "red", color: "red" })
+        marker = L.circleMarker([stNorthing, stEasting], { fillColor: "red", color: "red", "id": stationId })
         stationMarkers.push(marker)
         marker.addTo(map).bindPopup(stName);
         marker.addEventListener("click", (e) => {
