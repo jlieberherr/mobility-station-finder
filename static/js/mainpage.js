@@ -81,7 +81,7 @@ timePicker.value = now.toISOString().slice(0, 16);
 let queryData = null;
 let origMarker = null;
 let destMarker = null;
-let stationMarkers = [];
+let stationMarkerPerId = {};
 let polylineFeatureGroup = null;
 let journeyInfo = null;
 
@@ -237,10 +237,11 @@ function clearStationMarkers() {
         polylineFeatureGroup.remove();
     };
     polylineFeatureGroup == null;
-    stationMarkers.forEach((marker) => {
-        marker.remove();
+    // remove all station markers in stationMarkerPerId from map
+    Object.keys(stationMarkerPerId).forEach((stationId) => {
+        stationMarkerPerId[stationId].remove();
     });
-    stationMarkers = [];
+    stationMarkerPerId = {};
 }
 
 
@@ -289,6 +290,7 @@ function getBestMobilityStations() {
         .then((data) => {
             queryData = JSON.parse(data);
             if (checkForSlider()) {
+                showMobilityStations();
                 showBestMobilityStations(getVTTSValue());
             }
         })
@@ -327,48 +329,18 @@ function initTable() {
     }
 }
 
-function showBestMobilityStations(vTTS) {
+function showMobilityStations() {
     clearStationMarkers();
-    bestStationsCosts = queryData['best_stations_costs_per_vtts'][vTTS];
     dataPerStationId = queryData['data_per_station_id'];
-    initTable();
-    const table = document.getElementById("table");
-    bestStationsCosts.sort(function(a, b) {
-        return parseFloat(a.Costs) - parseFloat(b.Costs);}).forEach((stationCost) => {
-        stationId = stationCost['Stationsnummer'];
-        cost = stationCost['Costs'];
-        nonFootPenalty = dataPerStationId[stationId]['factor_not_foot'];
-        ptJT = dataPerStationId[stationId]['pt_jt'];
-        ptNT = dataPerStationId[stationId]['pt_nt'];
-        ptDist = dataPerStationId[stationId]['pt_dist'];
-        roadJT = dataPerStationId[stationId]['road_jt'];
-        roadDist = dataPerStationId[stationId]['road_dist'];
+    // iterate over all stations
+    Object.keys(dataPerStationId).forEach((stationId) => {
         stName = dataPerStationId[stationId]['Name']
         stEasting = dataPerStationId[stationId]['easting']
         stNorthing = dataPerStationId[stationId]['northing']
 
-        // add column rows
-        let row = table.insertRow();
-        let firstCol = row.insertCell(0);
-        firstCol.innerHTML = stName;
-        let secondCol = row.insertCell(1);
-        secondCol.innerHTML = nonFootPenalty.toFixed(2);
-        let thirdCol = row.insertCell(2);
-        thirdCol.innerHTML = floatToHHMM(ptJT);
-        let fourthCol = row.insertCell(3);
-        fourthCol.innerHTML = ptNT.toFixed(2);
-        let fifthCol = row.insertCell(4);
-        fifthCol.innerHTML = ptDist.toFixed(2);
-        let sixthCol = row.insertCell(5);
-        sixthCol.innerHTML = floatToHHMM(roadJT);
-        let seventhCol = row.insertCell(6);
-        seventhCol.innerHTML = roadDist.toFixed(2);
-        let eighthCol = row.insertCell(7);
-        eighthCol.innerHTML = cost.toFixed(1);
-            
         // add markers
-        marker = L.circleMarker([stNorthing, stEasting], { fillColor: "red", color: "red", "id": stationId })
-        stationMarkers.push(marker)
+        marker = L.circleMarker([stNorthing, stEasting], { fillColor: "grey", color: "grey", "id": stationId })
+        stationMarkerPerId[stationId] = marker;
         marker.addTo(map).bindPopup(stName);
         marker.addEventListener("click", (e) => {
             // init polylineFeatureGroup
@@ -482,8 +454,53 @@ function showBestMobilityStations(vTTS) {
             });
             polylineFeatureGroup.addTo(map);
         });
+    });
+}
 
-        });
+function showBestMobilityStations(vTTS) {
+    bestStationsCosts = queryData['best_stations_costs_per_vtts'][vTTS];
+    dataPerStationId = queryData['data_per_station_id'];
+    initTable();
+    // set all markers to red
+    Object.keys(stationMarkerPerId).forEach((stationId) => {
+        stationMarkerPerId[stationId].setStyle({ fillColor: "grey", color: "grey" });
+    });
+    const table = document.getElementById("table");
+    bestStationsCosts.sort(function(a, b) {
+        return parseFloat(a.Costs) - parseFloat(b.Costs);}).forEach((stationCost) => {
+        stationId = stationCost['Stationsnummer'];
+        // change color of marker
+        stationMarkerPerId[stationId].setStyle({ fillColor: "red", color: "red" });
+        cost = stationCost['Costs'];
+        nonFootPenalty = dataPerStationId[stationId]['factor_not_foot'];
+        ptJT = dataPerStationId[stationId]['pt_jt'];
+        ptNT = dataPerStationId[stationId]['pt_nt'];
+        ptDist = dataPerStationId[stationId]['pt_dist'];
+        roadJT = dataPerStationId[stationId]['road_jt'];
+        roadDist = dataPerStationId[stationId]['road_dist'];
+        stName = dataPerStationId[stationId]['Name']
+        stEasting = dataPerStationId[stationId]['easting']
+        stNorthing = dataPerStationId[stationId]['northing']
+
+        // add column rows
+        let row = table.insertRow();
+        let firstCol = row.insertCell(0);
+        firstCol.innerHTML = stName;
+        let secondCol = row.insertCell(1);
+        secondCol.innerHTML = nonFootPenalty.toFixed(2);
+        let thirdCol = row.insertCell(2);
+        thirdCol.innerHTML = floatToHHMM(ptJT);
+        let fourthCol = row.insertCell(3);
+        fourthCol.innerHTML = ptNT.toFixed(2);
+        let fifthCol = row.insertCell(4);
+        fifthCol.innerHTML = ptDist.toFixed(2);
+        let sixthCol = row.insertCell(5);
+        sixthCol.innerHTML = floatToHHMM(roadJT);
+        let seventhCol = row.insertCell(6);
+        seventhCol.innerHTML = roadDist.toFixed(2);
+        let eighthCol = row.insertCell(7);
+        eighthCol.innerHTML = cost.toFixed(1);
+    });
 }
 
 timePicker.addEventListener("change", () => {
