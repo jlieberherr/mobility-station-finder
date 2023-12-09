@@ -19,7 +19,6 @@ let config = {
 };
 // magnification with which the map will start
 const zoom = 9;
-// co-ordinates
 const lat = 46.800663464;
 const lng = 8.222665776;
 
@@ -38,8 +37,6 @@ var destIcon = new L.Icon({
     iconAnchor: [12.5, 41]
 });
 
-// Used to load and display tile layers on the map
-// Most tile servers require attribution, which you can set under `Layer`
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -50,9 +47,9 @@ var stateChangingButton = L.easyButton({
     states: [{
             stateName: 'full-screen',
             icon:      'fa-maximize',
-            onClick: function(btn, map) {       // and its callback
+            onClick: function(btn, map) {
                 toggleScreen();
-                btn.state('reduced-screen');    // change state on click!
+                btn.state('reduced-screen');
             }
         }, {
             stateName: 'reduced-screen',
@@ -113,6 +110,7 @@ map.on('contextmenu', function (e) {
     const form = `
     <form>
       <label id="origField">Hier Startpunkt setzen</label>
+      <br>
       <br>
       <label id="destField">Hier Zielpunkt setzen</label>
     </form>
@@ -258,7 +256,6 @@ function getVTTSValue() {
     ind = Math.floor(sliderMap.slider.value / 100.0 * (ks.length - 1));
     return ks[ind];
 }
-
 
 
 function onNewAddress(point, object) {
@@ -498,8 +495,6 @@ searchButton.addEventListener("click", () => {
     getBestMobilityStations();
 });
 
-
-
 function checkForSearch() {
     if (origMarker != null && destMarker != null && timePicker.value != '') {
         searchButton.disabled = false;
@@ -548,7 +543,6 @@ function toggleTable() {
 
 
 window.addEventListener("DOMContentLoaded", function () {
-
     ["orig", "dest"].forEach((point) => {
         const auto = new Autocomplete(point, {
             searchButton: false,
@@ -573,7 +567,6 @@ window.addEventListener("DOMContentLoaded", function () {
                 clearStationData();
                 checkForSlider();
             },
-            // the method presents no results
             noResults: ({ currentValue, template }) =>
                 template(`<li>No results found: "${currentValue}"</li>`),
         });
