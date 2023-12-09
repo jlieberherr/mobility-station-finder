@@ -196,7 +196,6 @@ function setOrigOrStartMarker(origOrDest, coords, popup_text) {
         checkForSearch();
         clearStationData();
         checkForSlider();
-
     });
 
     if (origOrDest == "orig") {
@@ -521,6 +520,8 @@ function showBestMobilityStations(vTTS) {
 
 timePicker.addEventListener("change", () => {
     checkForSearch();
+    clearStationData();
+    checkForSlider();
 });
 
 searchButton.addEventListener("click", () => {
