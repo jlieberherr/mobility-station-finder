@@ -60,7 +60,7 @@ def get_mobility_stations_from_api():
     mob_stations = []
     geometry = []
     for s in res['data']['stations']:
-        if s['provider_id'] == "mobility":
+        if s['provider_id'] in ["mobility", "emobility"]:
             easting = s['lon']
             northing = s['lat']
             mob_stations += [
@@ -69,6 +69,7 @@ def get_mobility_stations_from_api():
                  EASTING: easting, NORTHING: northing, }]
             geometry += [Point(easting, northing)]
     gdf_mobility_stations = gpd.GeoDataFrame(mob_stations, geometry=geometry, crs=CRS_EPSG_ID_WGS84)
+    gdf_mobility_stations = gdf_mobility_stations.drop_duplicates()
     log_end(additional_message="# mobility stations: {}".format(len(gdf_mobility_stations)))
     return gdf_mobility_stations
 
