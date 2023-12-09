@@ -67,6 +67,21 @@ L.easyButton('fa-table', function(btn, map){
     toggleTable()
 }).addTo( map );
 
+// add easy button to map which zooms to the markers
+L.easyButton('fa-crosshairs', function(btn, map){
+    zoomMapToMarkers();
+}).addTo( map );
+
+
+function zoomMapToMarkers() {
+    // only if there are markers
+    if (Object.keys(stationMarkerPerId).length > 0) {
+        // create feature group
+        var group = new L.featureGroup(Object.values(stationMarkerPerId));
+        map.fitBounds(group.getBounds());
+    }
+}
+
 toggleTable();
 
 const orig = document.querySelector("#orig");
@@ -455,6 +470,7 @@ function showMobilityStations() {
             polylineFeatureGroup.addTo(map);
         });
     });
+    zoomMapToMarkers();
 }
 
 function showBestMobilityStations(vTTS) {
