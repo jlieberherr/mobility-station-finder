@@ -7,12 +7,12 @@ import pytest
 from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, PT_JT_FILE_NAME, \
     PT_NT_FILE_NAME, MOBILITY_STATIONS_FILE_NAME
 from scripts.functions import get_gdf_point_with_zone_id, get_zone_id, get_skim, \
-    get_gdf_mobility_stations, get_gdf_npvm_zones, \
+    get_gdf_mobility_stations_from_file, get_gdf_npvm_zones, \
     get_gdf_mobility_stations_with_npvm_zone, read_skim, get_best_mobility_stations_per_vtt
 
 gdf_npvm_zones = get_gdf_npvm_zones(os.path.join(RESOURCES, NPVM_ZONES_SHP_FILE_NAME))
 
-gdf_mobility_stations = get_gdf_mobility_stations(os.path.join(RESOURCES, MOBILITY_STATIONS_FILE_NAME))
+gdf_mobility_stations = get_gdf_mobility_stations_from_file(os.path.join(RESOURCES, MOBILITY_STATIONS_FILE_NAME))
 gdf_mobility_stations_with_npvm_zone = get_gdf_mobility_stations_with_npvm_zone(gdf_mobility_stations, gdf_npvm_zones)
 
 skim_jrta = read_skim(os.path.join(RESOURCES, PT_JT_FILE_NAME))

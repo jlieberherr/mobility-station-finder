@@ -14,8 +14,8 @@ from flask import abort
 from params.project_params import OJP_XML_STR, URL_OJP
 from params.project_params import RESOURCES, NPVM_ZONES_SHP_FILE_NAME, MOBILITY_STATIONS_FILE_NAME, PT_JT_FILE_NAME, \
     PT_NT_FILE_NAME, OUTPUT_FOLDER, LOG_NAME, ROAD_DIST_FILE_NAME, ROAD_JT_FILE_NAME, PT_DIST_FILE_NAME
-from scripts.functions import get_gdf_npvm_zones, get_gdf_mobility_stations, get_gdf_mobility_stations_with_npvm_zone, \
-    run_query
+from scripts.functions import get_gdf_npvm_zones, get_gdf_mobility_stations_with_npvm_zone, \
+    run_query, get_mobility_stations_from_api
 from scripts.helpers.my_logging import log_start, log_end, init_logging
 
 log = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ def load_data():
     """loads all static data into memory"""
     log_start("loading static data", log)
     DataContainer.gdf_npvm_zones = get_gdf_npvm_zones(path_npvm_zones)
-    gdf_mobility_stations = get_gdf_mobility_stations(path_mobility_stations)
+    gdf_mobility_stations = get_mobility_stations_from_api()
     DataContainer.gdf_mobility_stations_with_npvm_zone = get_gdf_mobility_stations_with_npvm_zone(gdf_mobility_stations,
                                                                                                   DataContainer.gdf_npvm_zones)
     DataContainer.pt_jt = xr.open_dataset(path_pt_jrta)

@@ -53,7 +53,27 @@ def get_gdf_npvm_zones(path_to_npvm_zones_shp):
     return gdf_npvm_zones
 
 
-def get_gdf_mobility_stations(path_to_mobility_stations_csv):
+def get_mobility_stations_from_api():
+    url_stations = r"https://sharedmobility.ch/station_information.json"
+    log_start(f"reading mobility stations from {url_stations}", log)
+    res = requests.get(url_stations).json()
+    mob_stations = []
+    geometry = []
+    for s in res['data']['stations']:
+        if s['provider_id'] == "mobility":
+            easting = s['lon']
+            northing = s['lat']
+            mob_stations += [
+                {MOBILITY_STATIONSNUMMER: s['station_id'].split(':')[1],
+                 MOBILITY_STATIONSNAME: s['name'],
+                 EASTING: easting, NORTHING: northing, }]
+            geometry += [Point(easting, northing)]
+    gdf_mobility_stations = gpd.GeoDataFrame(mob_stations, geometry=geometry, crs=CRS_EPSG_ID_WGS84)
+    log_end(additional_message="# mobility stations: {}".format(len(gdf_mobility_stations)))
+    return gdf_mobility_stations
+
+
+def get_gdf_mobility_stations_from_file(path_to_mobility_stations_csv):
     log_start("reading mobility stations from {}".format(path_to_mobility_stations_csv), log)
     df_mobility_vehicles = \
         pd.read_csv(path_to_mobility_stations_csv, delimiter=DELIMITER_SEMICOLON, encoding=ENCODING_UTF8)[
