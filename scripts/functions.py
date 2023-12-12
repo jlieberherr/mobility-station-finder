@@ -146,6 +146,7 @@ def execute_road_routing(list_stations, gdf_dest_with_zone_id, chunk_size=200):
             coords_str += ";{},{}".format(st[EASTING], st[NORTHING])
         url = "https://router.project-osrm.org/table/v1/driving/{}?destinations=0&annotations=duration,distance".format(
             coords_str)
+        log.info(url)
         res = requests.get(url).json()
         for n, x in enumerate(chunk):
             road_distances_from_stat_to_dest_per_station_id[x[MOBILITY_STATIONSNUMMER]] = res[DISTANCES][n + 1][

@@ -639,6 +639,8 @@ function toggleScreen() {
   }
 }
 
+console.log( abc );
+
 window.addEventListener("DOMContentLoaded", function () {
   ["orig", "dest"].forEach((point) => {
     const auto = new Autocomplete(point, {

@@ -1,8 +1,11 @@
+data
 data/*.mtx
 data/*.zip
 data/*.csv
 data/*.nc
 data/config.yaml
+
+node_modules/
 .idea/
 
 # Byte-compiled / optimized / DLL files
