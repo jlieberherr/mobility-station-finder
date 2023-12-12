@@ -1,9 +1,16 @@
+.eslintrc.json
+package.json
+package-lock.json
+
+
 data
 data/*.mtx
 data/*.zip
 data/*.csv
 data/*.nc
 data/config.yaml
+
+
 
 node_modules/
 .idea/
