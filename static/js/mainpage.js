@@ -99,6 +99,7 @@ let origMarker = null;
 let destMarker = null;
 let stationMarkerPerId = {};
 let xmlDocPTJourneyPerStationId = {};
+let roadDataPerStationId = {};
 let polylineFeatureGroup = null;
 
 const sliderMap = L.control
@@ -259,6 +260,7 @@ function clearStationData() {
   clearStationMarkers();
   queryData = null;
   xmlDocPTJourneyPerStationId = {};
+  roadDataPerStationId = {};
   checkForSlider();
   initTable();
 }
@@ -443,9 +445,31 @@ function showPTJourney(xmlDoc) {
   }
 }
 
+function showRoadJourney(data) {
+  var pointList = [];
+  const coords = data["routes"][0]["geometry"]["coordinates"];
+  const duration = parseFloat(data["routes"][0]["duration"]) / 60.0;
+  const distance = parseFloat(data["routes"][0]["distance"]) / 1000.0;
+  // TODO
+//  journeyInfo["mobilityInfos"] = {
+//    startName: this_marker._popup._content,
+//   endName: destMarker._popup._content,
+//    duration: duration,
+//    distance: distance,
+//  };
+  for (let i = 0; i < coords.length; i++) {
+    var point = new L.LatLng(coords[i][1], coords[i][0]);
+    pointList.push(point);
+  }
+  var polyline = new L.polyline(pointList, {
+    color: "red",
+  });
+  polylineFeatureGroup.addLayer(polyline);
+}
+
 function showMobilityStations() {
   clearStationMarkers();
-  dataPerStationId = queryData["data_per_station_id"];
+  const dataPerStationId = queryData["data_per_station_id"];
   // iterate over all stations
   Object.keys(dataPerStationId).forEach((stationId) => {
     stName = dataPerStationId[stationId]["Name"];
@@ -498,39 +522,26 @@ function showMobilityStations() {
             console.error(error);
           });
       }
-
-      var stationEasting = this_marker.getLatLng().lng;
-      var stationNorthing = this_marker.getLatLng().lat;
-      var destEasting = destMarker.getLatLng().lng;
-      var destNorthing = destMarker.getLatLng().lat;
-      const url_orm = `http://router.project-osrm.org/route/v1/driving/${stationEasting},${stationNorthing};${destEasting},${destNorthing}?geometries=geojson`;
-      fetch(url_orm)
-        .then((response) => {
-          return response.json();
-        })
-        .then((data) => {
-          var pointList = [];
-          const coords = data["routes"][0]["geometry"]["coordinates"];
-          const duration = parseFloat(data["routes"][0]["duration"]) / 60.0;
-          const distance = parseFloat(data["routes"][0]["distance"]) / 1000.0;
-          journeyInfo["mobilityInfos"] = {
-            startName: this_marker._popup._content,
-            endName: destMarker._popup._content,
-            duration: duration,
-            distance: distance,
-          };
-          for (let i = 0; i < coords.length; i++) {
-            var point = new L.LatLng(coords[i][1], coords[i][0]);
-            pointList.push(point);
-          }
-          var polyline = new L.polyline(pointList, {
-            color: "red",
+      if (stationId in roadDataPerStationId) {
+        showRoadJourney(roadDataPerStationId[stationId]);
+      } else {
+        var stationEasting = this_marker.getLatLng().lng;
+        var stationNorthing = this_marker.getLatLng().lat;
+        var destEasting = destMarker.getLatLng().lng;
+        var destNorthing = destMarker.getLatLng().lat;
+        const url_orm = `http://router.project-osrm.org/route/v1/driving/${stationEasting},${stationNorthing};${destEasting},${destNorthing}?geometries=geojson`;
+        fetch(url_orm)
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            roadDataPerStationId[stationId] = data;
+            showRoadJourney(data);
+          })
+          .catch((error) => {
+            console.error(error);
           });
-          polylineFeatureGroup.addLayer(polyline);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      }
       polylineFeatureGroup.addTo(map);
     });
   });
