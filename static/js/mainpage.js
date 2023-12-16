@@ -2,8 +2,6 @@
  * Mobility-Station-Finder
  */
 
-// config map
-
 const env = "production";
 let apiUrl;
 
@@ -99,7 +97,9 @@ let origMarker = null;
 let destMarker = null;
 let stationMarkerPerId = {};
 let xmlDocPTJourneyPerStationId = {};
+let ptLegInfosPerStationId = {};
 let roadDataPerStationId = {};
+let roadInfosPerStationId = {};
 let polylineFeatureGroup = null;
 
 const sliderMap = L.control
@@ -260,7 +260,9 @@ function clearStationData() {
   clearStationMarkers();
   queryData = null;
   xmlDocPTJourneyPerStationId = {};
+  ptLegInfosPerStationId = {};
   roadDataPerStationId = {};
+  roadInfosPerStationId = {};
   checkForSlider();
   initTable();
 }
@@ -344,17 +346,16 @@ function initTable() {
   }
 }
 
-function showPTJourney(xmlDoc) {
+function getPTLegInfosPerStationId(xmlDoc, stationId) {
   // iterate over all trips
   const trip = xmlDoc.getElementsByTagName("ojp:TripResult")[0];
   const tripLegs = trip.getElementsByTagName("ojp:TripLeg");
+  var ptInfos = [];
   for (let i = 0; i < tripLegs.length; i++) {
     const tripLeg = tripLegs[i];
     const legType = getTypeOfTripLeg(tripLeg);
-    var color = null;
     if (legType == "ContinuousLeg" || legType == "TimedLeg") {
       if (legType == "ContinuousLeg") {
-        const color = "green";
         const continousLeg =
           tripLeg.getElementsByTagName("ojp:ContinuousLeg")[0];
         const legMode = continousLeg
@@ -385,7 +386,6 @@ function showPTJourney(xmlDoc) {
         };
         ptInfos.push(legInfo);
       } else {
-        color = "blue";
         const timedLeg = tripLeg.getElementsByTagName("ojp:TimedLeg")[0];
         const legMode = timedLeg
           .getElementsByTagName("ojp:Service")[0]
@@ -419,6 +419,29 @@ function showPTJourney(xmlDoc) {
         };
         ptInfos.push(legInfo);
       }
+    } else if (legType == "TransferLeg") {
+      // TODO
+    } else {
+      console.log("Error: Unknown type of trip leg: " + tripLeg);
+    }
+  }
+  return ptInfos;
+}
+
+function showPTJourney(xmlDoc) {
+  // iterate over all trips
+  const trip = xmlDoc.getElementsByTagName("ojp:TripResult")[0];
+  const tripLegs = trip.getElementsByTagName("ojp:TripLeg");
+  for (let i = 0; i < tripLegs.length; i++) {
+    const tripLeg = tripLegs[i];
+    const legType = getTypeOfTripLeg(tripLeg);
+    var color = null;
+    if (legType == "ContinuousLeg" || legType == "TimedLeg") {
+      if (legType == "ContinuousLeg") {
+        color = "green";
+      } else {
+        color = "blue";
+      }
       // add polyline with all positions to map
       const positions = tripLeg.getElementsByTagName("ojp:Position");
       var pointList = [];
@@ -441,22 +464,12 @@ function showPTJourney(xmlDoc) {
     } else {
       console.log("Error: Unknown type of trip leg: " + tripLeg);
     }
-    journeyInfo["ptInfos"] = ptInfos;
   }
 }
 
 function showRoadJourney(data) {
   var pointList = [];
   const coords = data["routes"][0]["geometry"]["coordinates"];
-  const duration = parseFloat(data["routes"][0]["duration"]) / 60.0;
-  const distance = parseFloat(data["routes"][0]["distance"]) / 1000.0;
-  // TODO
-//  journeyInfo["mobilityInfos"] = {
-//    startName: this_marker._popup._content,
-//   endName: destMarker._popup._content,
-//    duration: duration,
-//    distance: distance,
-//  };
   for (let i = 0; i < coords.length; i++) {
     var point = new L.LatLng(coords[i][1], coords[i][0]);
     pointList.push(point);
@@ -492,8 +505,6 @@ function showMobilityStations() {
         // create new polylineFeatureGroup
       }
       polylineFeatureGroup = L.featureGroup();
-      journeyInfo = {}; // TODO look if this is needed
-      ptInfos = []; // TODO look if this is needed
       var this_marker = e.target;
       const stationId = this_marker.options.id;
       // check if stationId is in xmlDocPTJourneyPerStationId
@@ -516,6 +527,10 @@ function showMobilityStations() {
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlDocString, "text/xml");
             xmlDocPTJourneyPerStationId[stationId] = xmlDoc;
+            ptLegInfosPerStationId[stationId] = getPTLegInfosPerStationId(
+              xmlDoc,
+              stationId
+            );
             showPTJourney(xmlDoc);
           })
           .catch((error) => {
@@ -536,12 +551,23 @@ function showMobilityStations() {
           })
           .then((data) => {
             roadDataPerStationId[stationId] = data;
+            const duration = parseFloat(data["routes"][0]["duration"]) / 60.0;
+            const distance = parseFloat(data["routes"][0]["distance"]) / 1000.0;
+            roadInfosPerStationId[stationId] = {
+              startName: this_marker._popup._content,
+              endName: destMarker._popup._content,
+              duration: duration,
+              distance: distance,
+            };
             showRoadJourney(data);
           })
           .catch((error) => {
             console.error(error);
           });
       }
+      // show journey info in modal
+      // TODO
+
       polylineFeatureGroup.addTo(map);
     });
   });
