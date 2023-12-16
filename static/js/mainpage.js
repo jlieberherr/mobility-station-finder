@@ -480,6 +480,72 @@ function showRoadJourney(data) {
   polylineFeatureGroup.addLayer(polyline);
 }
 
+function showModal(stationId) {
+  // show modal if stationId is in ptLegInfosPerStationId and roadInfosPerStationId
+  if (
+    stationId in ptLegInfosPerStationId &&
+    stationId in roadInfosPerStationId
+  ) {
+    // show data in ptInfos in a modal
+    ptInfos = ptLegInfosPerStationId[stationId];
+    roadInfos = roadInfosPerStationId[stationId];
+    var ptInfosTable = "";
+    ptInfos.forEach((ptInfo) => {
+      ptInfosTable += `<tr><td>${ptInfo["legMode"]}</td><td>${
+        ptInfo["startName"]
+      }</td><td>${ptInfo["startTime"].toLocaleTimeString("de-CH")}</td><td>${
+        ptInfo["endName"]
+      }</td><td>${ptInfo["endTime"].toLocaleTimeString("de-CH")}</td></tr>`;
+    });
+    var roadInfosTable = `<tr><td>${roadInfos["startName"]}</td><td>${
+      roadInfos["endName"]
+    }</td><td>${floatToHHMM(roadInfos["duration"])}</td><td>${roadInfos[
+      "distance"
+    ].toFixed(2)} km</td></tr>`;
+    var modal = document.getElementById("journey-info-modal");
+    var modalContent = document.getElementById("journey-info-modal-content");
+    modalContent.innerHTML = `
+<div class="modal-header">
+<span class="close">&times;</span>  
+</div>
+<div class="modal-body">
+  <h2>Weg zur Mobility-Station</h2>
+  <table>
+    <tr>
+      <th>Verkehrsmittel</th>
+      <th>Start</th>
+      <th>Abfahrt</th>
+      <th>Ziel</th>
+      <th>Ankunft</th>
+    </tr>
+    ${ptInfosTable}
+  </table>
+  <br>
+  <h2>Weg mit Mobility</h2>
+  <table>
+    <tr>
+      <th>Start</th>
+      <th>Ziel</th>
+      <th>Dauer</th>
+      <th>Distanz</th>
+    </tr>
+    ${roadInfosTable}
+  </table>
+</div>
+`;
+    modal.style.display = "block";
+    var span = document.getElementsByClassName("close")[0];
+    span.onclick = function () {
+      modal.style.display = "none";
+    };
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    };
+  }
+}
+
 function showMobilityStations() {
   clearStationMarkers();
   const dataPerStationId = queryData["data_per_station_id"];
@@ -532,6 +598,7 @@ function showMobilityStations() {
               stationId
             );
             showPTJourney(xmlDoc);
+            showModal(stationId);
           })
           .catch((error) => {
             console.error(error);
@@ -560,15 +627,15 @@ function showMobilityStations() {
               distance: distance,
             };
             showRoadJourney(data);
+            showModal(stationId);
           })
           .catch((error) => {
             console.error(error);
           });
       }
-      // show journey info in modal
-      // TODO
 
       polylineFeatureGroup.addTo(map);
+      showModal(stationId);
     });
   });
   zoomMapToMarkers();
