@@ -98,8 +98,8 @@ let queryData = null;
 let origMarker = null;
 let destMarker = null;
 let stationMarkerPerId = {};
+let xmlDocPTJourneyPerStationId = {};
 let polylineFeatureGroup = null;
-let journeyInfo = null;
 
 const sliderMap = L.control
   .slider(
@@ -258,6 +258,7 @@ function clearStationMarkers() {
 function clearStationData() {
   clearStationMarkers();
   queryData = null;
+  xmlDocPTJourneyPerStationId = {};
   checkForSlider();
   initTable();
 }
@@ -341,6 +342,107 @@ function initTable() {
   }
 }
 
+function showPTJourney(xmlDoc) {
+  // iterate over all trips
+  const trip = xmlDoc.getElementsByTagName("ojp:TripResult")[0];
+  const tripLegs = trip.getElementsByTagName("ojp:TripLeg");
+  for (let i = 0; i < tripLegs.length; i++) {
+    const tripLeg = tripLegs[i];
+    const legType = getTypeOfTripLeg(tripLeg);
+    var color = null;
+    if (legType == "ContinuousLeg" || legType == "TimedLeg") {
+      if (legType == "ContinuousLeg") {
+        const color = "green";
+        const continousLeg =
+          tripLeg.getElementsByTagName("ojp:ContinuousLeg")[0];
+        const legMode = continousLeg
+          .getElementsByTagName("ojp:Service")[0]
+          .getElementsByTagName("ojp:IndividualMode")[0].textContent;
+        const legStart = continousLeg.getElementsByTagName("ojp:LegStart")[0];
+        const startName = legStart
+          .getElementsByTagName("ojp:LocationName")[0]
+          .getElementsByTagName("ojp:Text")[0].textContent;
+        const legEnd = continousLeg.getElementsByTagName("ojp:LegEnd")[0];
+        const endName = legEnd
+          .getElementsByTagName("ojp:LocationName")[0]
+          .getElementsByTagName("ojp:Text")[0].textContent;
+        const startTime = new Date(
+          continousLeg.getElementsByTagName(
+            "ojp:TimeWindowStart"
+          )[0].textContent
+        );
+        const endTime = new Date(
+          continousLeg.getElementsByTagName("ojp:TimeWindowEnd")[0].textContent
+        );
+        const legInfo = {
+          legMode: legMode,
+          startName: startName,
+          endName: endName,
+          startTime: startTime,
+          endTime: endTime,
+        };
+        ptInfos.push(legInfo);
+      } else {
+        color = "blue";
+        const timedLeg = tripLeg.getElementsByTagName("ojp:TimedLeg")[0];
+        const legMode = timedLeg
+          .getElementsByTagName("ojp:Service")[0]
+          .getElementsByTagName("ojp:Mode")[0]
+          .getElementsByTagName("ojp:Name")[0]
+          .getElementsByTagName("ojp:Text")[0].textContent;
+        const legBoard = timedLeg.getElementsByTagName("ojp:LegBoard")[0];
+        const startName = legBoard
+          .getElementsByTagName("ojp:StopPointName")[0]
+          .getElementsByTagName("ojp:Text")[0].textContent;
+        const startTime = new Date(
+          legBoard
+            .getElementsByTagName("ojp:ServiceDeparture")[0]
+            .getElementsByTagName("ojp:TimetabledTime")[0].textContent
+        );
+        const legAlight = timedLeg.getElementsByTagName("ojp:LegAlight")[0];
+        const endName = legAlight
+          .getElementsByTagName("ojp:StopPointName")[0]
+          .getElementsByTagName("ojp:Text")[0].textContent;
+        const endTime = new Date(
+          legAlight
+            .getElementsByTagName("ojp:ServiceArrival")[0]
+            .getElementsByTagName("ojp:TimetabledTime")[0].textContent
+        );
+        const legInfo = {
+          legMode: legMode,
+          startName: startName,
+          endName: endName,
+          startTime: startTime,
+          endTime: endTime,
+        };
+        ptInfos.push(legInfo);
+      }
+      // add polyline with all positions to map
+      const positions = tripLeg.getElementsByTagName("ojp:Position");
+      var pointList = [];
+      for (let j = 0; j < positions.length; j++) {
+        var position = positions[j];
+        var easting =
+          position.getElementsByTagName("siri:Longitude")[0].textContent;
+        var northing =
+          position.getElementsByTagName("siri:Latitude")[0].textContent;
+        var point = new L.LatLng(northing, easting);
+        // add point to pointList
+        pointList.push(point);
+      }
+      var polyline = new L.polyline(pointList, {
+        color: color,
+      });
+      polylineFeatureGroup.addLayer(polyline);
+    } else if (legType == "TransferLeg") {
+      // TODO
+    } else {
+      console.log("Error: Unknown type of trip leg: " + tripLeg);
+    }
+    journeyInfo["ptInfos"] = ptInfos;
+  }
+}
+
 function showMobilityStations() {
   clearStationMarkers();
   dataPerStationId = queryData["data_per_station_id"];
@@ -366,133 +468,37 @@ function showMobilityStations() {
         // create new polylineFeatureGroup
       }
       polylineFeatureGroup = L.featureGroup();
-      journeyInfo = {};
-      ptInfos = [];
+      journeyInfo = {}; // TODO look if this is needed
+      ptInfos = []; // TODO look if this is needed
       var this_marker = e.target;
-
-      const api_ojp = `${apiUrl}/api/ojp-request?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${this_marker._latlng.lng}&dest_northing=${this_marker._latlng.lat}&dep_time=${timePicker.value}`;
-      fetch(api_ojp)
-        .then((response) => {
-          if (!response.ok) {
-            alert("Beim Abfragen der öV-Verbindung ist ein Fehler aufgetreten");
-            throw new Error("OJP request failed");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          xmlDocString = JSON.parse(data)["xml_str"];
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(xmlDocString, "text/xml");
-          // iterate over all trips
-          const trip = xmlDoc.getElementsByTagName("ojp:TripResult")[0];
-          const tripLegs = trip.getElementsByTagName("ojp:TripLeg");
-          for (let i = 0; i < tripLegs.length; i++) {
-            tripLeg = tripLegs[i];
-            const legType = getTypeOfTripLeg(tripLeg);
-            var color = null;
-            if (legType == "ContinuousLeg" || legType == "TimedLeg") {
-              if (legType == "ContinuousLeg") {
-                color = "green";
-                const continousLeg =
-                  tripLeg.getElementsByTagName("ojp:ContinuousLeg")[0];
-                const legMode = continousLeg
-                  .getElementsByTagName("ojp:Service")[0]
-                  .getElementsByTagName("ojp:IndividualMode")[0].textContent;
-                const legStart =
-                  continousLeg.getElementsByTagName("ojp:LegStart")[0];
-                const startName = legStart
-                  .getElementsByTagName("ojp:LocationName")[0]
-                  .getElementsByTagName("ojp:Text")[0].textContent;
-                const legEnd =
-                  continousLeg.getElementsByTagName("ojp:LegEnd")[0];
-                const endName = legEnd
-                  .getElementsByTagName("ojp:LocationName")[0]
-                  .getElementsByTagName("ojp:Text")[0].textContent;
-                const startTime = new Date(
-                  continousLeg.getElementsByTagName(
-                    "ojp:TimeWindowStart"
-                  )[0].textContent
-                );
-                const endTime = new Date(
-                  continousLeg.getElementsByTagName(
-                    "ojp:TimeWindowEnd"
-                  )[0].textContent
-                );
-                const legInfo = {
-                  legMode: legMode,
-                  startName: startName,
-                  endName: endName,
-                  startTime: startTime,
-                  endTime: endTime,
-                };
-                ptInfos.push(legInfo);
-              } else {
-                color = "blue";
-                const timedLeg =
-                  tripLeg.getElementsByTagName("ojp:TimedLeg")[0];
-                const legMode = timedLeg
-                  .getElementsByTagName("ojp:Service")[0]
-                  .getElementsByTagName("ojp:Mode")[0]
-                  .getElementsByTagName("ojp:Name")[0]
-                  .getElementsByTagName("ojp:Text")[0].textContent;
-                const legBoard =
-                  timedLeg.getElementsByTagName("ojp:LegBoard")[0];
-                const startName = legBoard
-                  .getElementsByTagName("ojp:StopPointName")[0]
-                  .getElementsByTagName("ojp:Text")[0].textContent;
-                const startTime = new Date(
-                  legBoard
-                    .getElementsByTagName("ojp:ServiceDeparture")[0]
-                    .getElementsByTagName("ojp:TimetabledTime")[0].textContent
-                );
-                const legAlight =
-                  timedLeg.getElementsByTagName("ojp:LegAlight")[0];
-                const endName = legAlight
-                  .getElementsByTagName("ojp:StopPointName")[0]
-                  .getElementsByTagName("ojp:Text")[0].textContent;
-                const endTime = new Date(
-                  legAlight
-                    .getElementsByTagName("ojp:ServiceArrival")[0]
-                    .getElementsByTagName("ojp:TimetabledTime")[0].textContent
-                );
-                const legInfo = {
-                  legMode: legMode,
-                  startName: startName,
-                  endName: endName,
-                  startTime: startTime,
-                  endTime: endTime,
-                };
-                ptInfos.push(legInfo);
-              }
-              // add polyline with all positions to map
-              const positions = tripLeg.getElementsByTagName("ojp:Position");
-              var pointList = [];
-              for (let j = 0; j < positions.length; j++) {
-                var position = positions[j];
-                var easting =
-                  position.getElementsByTagName("siri:Longitude")[0]
-                    .textContent;
-                var northing =
-                  position.getElementsByTagName("siri:Latitude")[0].textContent;
-                var point = new L.LatLng(northing, easting);
-                // add point to pointList
-                pointList.push(point);
-              }
-              var polyline = new L.polyline(pointList, {
-                color: color,
-              });
-              polylineFeatureGroup.addLayer(polyline);
-            } else if (legType == "TransferLeg") {
-              // TODO
-            } else {
-              console.log("Error: Unknown type of trip leg: " + tripLeg);
+      const stationId = this_marker.options.id;
+      // check if stationId is in xmlDocPTJourneyPerStationId
+      if (stationId in xmlDocPTJourneyPerStationId) {
+        showPTJourney(xmlDocPTJourneyPerStationId[stationId]);
+      } else {
+        const api_ojp = `${apiUrl}/api/ojp-request?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${this_marker._latlng.lng}&dest_northing=${this_marker._latlng.lat}&dep_time=${timePicker.value}`;
+        fetch(api_ojp)
+          .then((response) => {
+            if (!response.ok) {
+              alert(
+                "Beim Abfragen der öV-Verbindung ist ein Fehler aufgetreten"
+              );
+              throw new Error("OJP request failed");
             }
-            journeyInfo["ptInfos"] = ptInfos;
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+            return response.json();
+          })
+          .then((data) => {
+            xmlDocString = JSON.parse(data)["xml_str"];
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlDocString, "text/xml");
+            xmlDocPTJourneyPerStationId[stationId] = xmlDoc;
+            showPTJourney(xmlDoc);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+
       var stationEasting = this_marker.getLatLng().lng;
       var stationNorthing = this_marker.getLatLng().lat;
       var destEasting = destMarker.getLatLng().lng;
@@ -638,8 +644,6 @@ function toggleScreen() {
     map.invalidateSize(); // Trigger map redraw
   }
 }
-
-console.log( abc );
 
 window.addEventListener("DOMContentLoaded", function () {
   ["orig", "dest"].forEach((point) => {
