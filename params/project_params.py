@@ -71,7 +71,7 @@ OJP_XML_STR = '''<?xml version="1.0" encoding="utf-8"?>
                             <Latitude>47.36488</Latitude>
                         </ojp:GeoPosition>
                         <ojp:LocationName>
-                            <ojp:Text>Ziel</ojp:Text>
+                            <ojp:Text>Mobility</ojp:Text>
                         </ojp:LocationName>
                     </ojp:PlaceRef>
                 </ojp:Destination>

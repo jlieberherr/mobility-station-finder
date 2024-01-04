@@ -492,11 +492,14 @@ function showModal(stationId) {
     roadInfos = roadInfosPerStationId[stationId];
     var ptInfosTable = "";
     ptInfos.forEach((ptInfo) => {
-      ptInfosTable += `<tr><td>${ptInfo["legMode"]}</td><td>${
-        ptInfo["startName"]
-      }</td><td>${ptInfo["startTime"].toLocaleTimeString("de-CH")}</td><td>${
-        ptInfo["endName"]
-      }</td><td>${ptInfo["endTime"].toLocaleTimeString("de-CH")}</td></tr>`;
+      ptInfosTable += 
+      `<tr>
+        <td>${ptInfo["legMode"]}</td>
+        <td>${ptInfo["startName"]}</td>
+        <td>${ptInfo["startTime"].toLocaleTimeString("de-CH")}</td>
+        <td>${ptInfo["endName"]}</td>
+        <td>${ptInfo["endTime"].toLocaleTimeString("de-CH")}</td>
+      </tr>`;
     });
     var roadInfosTable = `<tr><td>${roadInfos["startName"]}</td><td>${
       roadInfos["endName"]
