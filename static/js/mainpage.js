@@ -63,14 +63,16 @@ var stateChangingButton = L.easyButton({
 
 stateChangingButton.addTo(map);
 
-L.easyButton("fa-table", function (btn, map) {
+var toggleTableButton = L.easyButton("fa-table", function (btn, map) {
   toggleTable();
 }).addTo(map);
+toggleTableButton.getContainer().id = "toggle-table-button";
 
 // add easy button to map which zooms to the markers
-L.easyButton("fa-crosshairs", function (btn, map) {
+var zoomButton = L.easyButton("fa-crosshairs", function (btn, map) {
   zoomMapToMarkers();
 }).addTo(map);
+zoomButton.getContainer().id = "zoom-button";
 
 function zoomMapToMarkers() {
   // only if there are markers
@@ -123,8 +125,7 @@ const sliderMap = L.control
     }
   )
   .addTo(map);
-
-sliderMap.slider.disabled = true;
+checkForSlider();
 
 // Add a contextmenu event listener to the map
 map.on("contextmenu", function (e) {
@@ -742,10 +743,14 @@ function checkForSearch() {
 
 function checkForSlider() {
   if (queryData != null) {
-    sliderMap.slider.disabled = false;
+    document.querySelector('.leaflet-control-slider').style.display = 'block';
+    document.getElementById("toggle-table-button").style.display = "block";
+    document.getElementById("zoom-button").style.display = "block";
     return true;
   } else {
-    sliderMap.slider.disabled = true;
+    document.querySelector('.leaflet-control-slider').style.display = 'none';
+    document.getElementById("toggle-table-button").style.display = "none";
+    document.getElementById("zoom-button").style.display = "none";
     return false;
   }
 }

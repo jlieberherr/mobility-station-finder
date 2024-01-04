@@ -93,8 +93,6 @@ a.leaflet-control-slider-toggle {
   margin: 0px 0px;
 }
 
-
-
 .leaflet-control-slider input[type=range] {
   -webkit-appearance: none;
   width: 100%;
@@ -116,8 +114,8 @@ a.leaflet-control-slider-toggle {
   border: 0px solid rgba(0, 0, 0, 0);
   height: 16px;
   width: 16px;
-  border-radius: 8px;
-  background: #a4a4a4;
+  border-radius: 0px;
+  background: CornflowerBlue;
   cursor: pointer;
   -webkit-appearance: none;
   margin-top: -5.5px;
