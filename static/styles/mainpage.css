@@ -61,6 +61,11 @@ button:disabled {
     cursor: not-allowed;
   }
 
+.info-button {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 30px;
+}
 
 .mapTable {
     display: flex;
