@@ -40,6 +40,9 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
+map.zoomControl.remove();
+L.control.zoom({ position: 'topright' }).addTo(map);
+
 var stateChangingButton = L.easyButton({
   states: [
     {
@@ -59,7 +62,7 @@ var stateChangingButton = L.easyButton({
       },
     },
   ],
-});
+}).setPosition('topright');
 
 stateChangingButton.addTo(map);
 
