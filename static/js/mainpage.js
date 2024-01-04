@@ -2,7 +2,7 @@
  * Mobility-Station-Finder
  */
 
-const env = "production";
+const env = "production_";
 let apiUrl;
 
 if (env === "production") {
@@ -63,7 +63,6 @@ var stateChangingButton = L.easyButton({
     },
   ],
 }).setPosition('topright');
-
 stateChangingButton.addTo(map);
 
 var toggleTableButton = L.easyButton("fa-table", function (btn, map) {
@@ -74,7 +73,8 @@ toggleTableButton.getContainer().id = "toggle-table-button";
 // add easy button to map which zooms to the markers
 var zoomButton = L.easyButton("fa-crosshairs", function (btn, map) {
   zoomMapToMarkers();
-}).addTo(map);
+}).setPosition("topright");
+zoomButton.addTo(map);
 zoomButton.getContainer().id = "zoom-button";
 
 function zoomMapToMarkers() {

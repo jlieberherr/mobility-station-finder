@@ -19,16 +19,11 @@ body {
 
 .orig, .dest {
     flex-grow: 4;
-    margin: 5px;
-}
+    margin: 5px;}
 
 #orig, #dest {
     border-radius: 10px;
     border: 2px solid #ccc;
-}
-
-.orig-coords, .dest-coords {
-    margin-top: 5px;
 }
 
 #deptime {
@@ -80,6 +75,7 @@ button:disabled {
 
 #overview {
     overflow-y: scroll;
+    width: 600px;
 }
 
 td, th {
@@ -112,7 +108,7 @@ td, th {
     margin: auto;
     padding: 10px;
     border: 1px solid #888;
-    width:500px;
+    width:600px;
     overflow: auto;
   }
   
