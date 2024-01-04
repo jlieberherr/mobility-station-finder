@@ -228,7 +228,7 @@ function results({ currentValue, matches, template }) {
 }
 
 function nominatim(currentValue) {
-  const api = `https://nominatim.openstreetmap.org/search?format=geojson&limit=5&q=${encodeURI(
+  const api = `https://nominatim.openstreetmap.org/search?countrycodes=CH&format=geojson&limit=5&q=${encodeURI(
     currentValue
   )}`;
 
