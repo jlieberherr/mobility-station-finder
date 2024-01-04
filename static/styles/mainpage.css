@@ -8,7 +8,7 @@ body {
     flex-direction: column;
     font-family: 'Helvetica Neue', sans-serif;
     height: 100%;
-    overflow: hidden;
+    margin: 0;
 }
 
 .origDest {
@@ -19,7 +19,8 @@ body {
 
 .orig, .dest {
     flex-grow: 4;
-    margin: 5px;}
+    margin: 5px;
+}
 
 #orig, #dest {
     border-radius: 10px;
@@ -74,17 +75,18 @@ button:disabled {
 }
 
 #overview {
-    overflow-y: scroll;
     width: 600px;
+    height: 100%;;
 }
 
 td, th {
     border: 1px solid #dddddd;
     text-align: left;
     font-size: small;
-    padding: 8px;
-  }
-  tr:nth-child(even) {
+    padding: 2px;  
+}
+
+tr:nth-child(even) {
     background-color: #dddddd;
 }
 
