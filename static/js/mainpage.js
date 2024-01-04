@@ -6,7 +6,7 @@ const env = "production";
 let apiUrl;
 
 if (env === "production") {
-  apiUrl = "https://mobility-station-finder.ch";
+  apiUrl = "http://mobility-station-finder.ch";
 } else {
   apiUrl = "http://127.0.0.1:5000";
 }
