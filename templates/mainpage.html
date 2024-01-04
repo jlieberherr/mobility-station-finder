@@ -1,75 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mobility-Station-Finder</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/mainpage.css') }}">
 
-    <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css">
     <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
-    <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/gh/tomik23/autocomplete@1.8.6/dist/css/autocomplete.min.css"
-    />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/tomik23/autocomplete@1.8.6/dist/css/autocomplete.min.css" />
     <script src="https://cdn.jsdelivr.net/gh/tomik23/autocomplete@1.8.6/dist/js/autocomplete.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static',filename='dist/leaflet-slider.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static',filename='dist/leaflet-slider.css') }}" />
     <script src="{{ url_for('static',filename='dist/leaflet-slider.js') }}"></script>
 </head>
 
 <body>
-<div class="origDest" id="orig-dest">
-    <div class="orig">
-        <div class="auto-search-wrapper">
-            <input
-                    type="text"
-                    autocomplete="off"
-                    id="orig"
-                    placeholder="Suche Startpunkt"
-            />
+    <div class="origDest" id="orig-dest">
+        <div class="orig">
+            <div class="auto-search-wrapper">
+                <input type="text" autocomplete="off" id="orig" placeholder="Suche Startpunkt" />
+            </div>
+        </div>
+        <div class="dest">
+            <div class="auto-search-wrapper">
+                <input type="text" autocomplete="off" id="dest" placeholder="Suche Zielpunkt" />
+            </div>
+        </div>
+        <input type="datetime-local" id="deptime" name="Abfahrtszeit: ">
+        <button class="run-search" disabled>Suche</button>
+    </div>
+    <div class="mapTable">
+        <div id="map"></div>
+        <div id="overview">
+            <table id="table">
+                <tr>
+                    <th>Mobility Station</th>
+                    <th>Nicht-Fuss-Penalty</th>
+                    <th>ÖV-Zeit bis Mobility</th>
+                    <th>Anzahl Umstiege bis Mobility</th>
+                    <th>ÖV-Distanz bis Mobility [km]</th>
+                    <th>MIV-Zeit ab Mobility</th>
+                    <th>MIV-Distanz ab Mobility [km]</th>
+                    <th>Kosten [CHF]</th>
+                </tr>
+            </table>
         </div>
     </div>
-    <div class="dest">
-        <div class="auto-search-wrapper">
-            <input
-                    type="text"
-                    autocomplete="off"
-                    id="dest"
-                    placeholder="Suche Zielpunkt"
-            />
+    <div id="journey-info-modal" class="modal">
+        <div id="journey-info-modal-content" class="modal-content">
         </div>
     </div>
-    <input type="datetime-local" id="deptime" name="Abfahrtszeit: ">
-    <button class="run-search" disabled>Suche</button>
-</div><div class="mapTable">
-    <div id="map"></div>
-    <div id="overview">
-        <table id="table">
-            <tr>
-              <th>Mobility Station</th>
-              <th>Nicht-Fuss-Penalty</th>
-              <th>ÖV-Zeit bis Mobility</th>
-              <th>Anzahl Umstiege bis Mobility</th>
-              <th>ÖV-Distanz bis Mobility [km]</th>
-              <th>MIV-Zeit ab Mobility</th>
-              <th>MIV-Distanz ab Mobility [km]</th>
-              <th>Kosten [CHF]</th>
-            </tr>
-          </table>
-    </div>
-</div>
-<div id="journey-info-modal" class="modal">
-    <div id="journey-info-modal-content" class="modal-content">
-    </div>
-</div>
+    <div id="loading-spinner" style="display: none;"></div>
 
-<script src="{{ url_for('static', filename='js/mainpage.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mainpage.js') }}"></script>
 </body>
+
 </html>

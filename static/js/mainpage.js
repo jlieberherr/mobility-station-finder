@@ -280,12 +280,13 @@ function onNewAddress(point, object) {
 }
 
 function getBestMobilityStations() {
+  showLoadingSpinner();
   clearStationData();
   // get result form an rest interface
   const api = `${apiUrl}/api/get-best-mobility-stations?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${destMarker._latlng.lng}&dest_northing=${destMarker._latlng.lat}`;
-  // fetch data
   fetch(api)
     .then((response) => {
+      hideLoadingSpinner();
       if (response.status == 500) {
         alert(
           "Es ist ein unbekannter Fehler aufgetreten. Bitte versuchen Sie es mit anderen Start- und Zielkoordinaten oder versuchen Sie es später erneut."
@@ -564,6 +565,9 @@ function showMobilityStations() {
     stationMarkerPerId[stationId] = marker;
     marker.addTo(map).bindPopup(stName);
     marker.addEventListener("click", (e) => {
+      showLoadingSpinner();
+      var ojpRequestTerminated = false;
+      var osrmRequestTerminated = false;
       // init polylineFeatureGroup
       if (polylineFeatureGroup != null) {
         // remove polylineFeatureGroup from map
@@ -575,6 +579,10 @@ function showMobilityStations() {
       const stationId = this_marker.options.id;
       // check if stationId is in xmlDocPTJourneyPerStationId
       if (stationId in xmlDocPTJourneyPerStationId) {
+        ojpRequestTerminated = true;
+        if (osrmRequestTerminated) {
+          hideLoadingSpinner();
+        }
         showPTJourney(xmlDocPTJourneyPerStationId[stationId]);
       } else {
         const api_ojp = `${apiUrl}/api/ojp-request?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${this_marker._latlng.lng}&dest_northing=${this_marker._latlng.lat}&dep_time=${timePicker.value}`;
@@ -589,6 +597,10 @@ function showMobilityStations() {
             return response.json();
           })
           .then((data) => {
+            ojpRequestTerminated = true;
+            if (osrmRequestTerminated) {
+              hideLoadingSpinner();
+            }
             xmlDocString = JSON.parse(data)["xml_str"];
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlDocString, "text/xml");
@@ -605,6 +617,10 @@ function showMobilityStations() {
           });
       }
       if (stationId in roadDataPerStationId) {
+        osrmRequestTerminated = true;
+        if (ojpRequestTerminated) {
+          hideLoadingSpinner();
+        }
         showRoadJourney(roadDataPerStationId[stationId]);
       } else {
         var stationEasting = this_marker.getLatLng().lng;
@@ -617,6 +633,10 @@ function showMobilityStations() {
             return response.json();
           })
           .then((data) => {
+            osrmRequestTerminated = true;
+            if (ojpRequestTerminated) {
+              hideLoadingSpinner();
+            }
             roadDataPerStationId[stationId] = data;
             const duration = parseFloat(data["routes"][0]["duration"]) / 60.0;
             const distance = parseFloat(data["routes"][0]["distance"]) / 1000.0;
@@ -747,6 +767,14 @@ function toggleScreen() {
     origDest.style.display = "none";
     map.invalidateSize(); // Trigger map redraw
   }
+}
+
+function showLoadingSpinner() {
+  document.getElementById("loading-spinner").style.display = "block";
+}
+
+function hideLoadingSpinner() {
+  document.getElementById("loading-spinner").style.display = "none";
 }
 
 window.addEventListener("DOMContentLoaded", function () {
