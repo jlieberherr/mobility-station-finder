@@ -125,4 +125,4 @@ def execute_ojp_request(orig_easting, orig_northing, dest_easting, dest_northing
         log.error(f"OJP request failed with status code {res.status_code}")
         abort(res.status_code)
     else:
-        return json.dumps({'xml_str': res.text})
+        return json.dumps({'xml_str': res.text.encode('cp1252').decode('utf-8')})
