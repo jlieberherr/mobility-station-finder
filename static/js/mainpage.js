@@ -6,7 +6,7 @@ const env = "production";
 let apiUrl;
 
 if (env === "production") {
-  apiUrl = "http://mobility-station-finder.ch";
+  apiUrl = "https://mobility-station-finder.ch";
 } else {
   apiUrl = "http://127.0.0.1:5000";
 }
@@ -634,7 +634,7 @@ function showMobilityStations() {
         var stationNorthing = this_marker.getLatLng().lat;
         var destEasting = destMarker.getLatLng().lng;
         var destNorthing = destMarker.getLatLng().lat;
-        const url_orm = `http://router.project-osrm.org/route/v1/driving/${stationEasting},${stationNorthing};${destEasting},${destNorthing}?geometries=geojson`;
+        const url_orm = `https://router.project-osrm.org/route/v1/driving/${stationEasting},${stationNorthing};${destEasting},${destNorthing}?geometries=geojson`;
         fetch(url_orm)
           .then((response) => {
             return response.json();
