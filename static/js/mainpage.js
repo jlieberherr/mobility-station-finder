@@ -315,6 +315,7 @@ function getBestMobilityStations() {
       }
     })
     .catch((error) => {
+      hideLoadingSpinner();
       console.error(error);
     });
 }
@@ -593,6 +594,7 @@ function showMobilityStations() {
         showPTJourney(xmlDocPTJourneyPerStationId[stationId]);
       } else {
         const api_ojp = `${apiUrl}/api/ojp-request?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${this_marker._latlng.lng}&dest_northing=${this_marker._latlng.lat}&dep_time=${timePicker.value}`;
+        console.log(api_ojp);
         fetch(api_ojp)
           .then((response) => {
             if (!response.ok) {
@@ -604,6 +606,7 @@ function showMobilityStations() {
             return response.json();
           })
           .then((data) => {
+            console.log(data);
             ojpRequestTerminated = true;
             if (osrmRequestTerminated) {
               hideLoadingSpinner();
@@ -620,6 +623,7 @@ function showMobilityStations() {
             showModal(stationId);
           })
           .catch((error) => {
+            hideLoadingSpinner();
             console.error(error);
           });
       }
@@ -657,6 +661,7 @@ function showMobilityStations() {
             showModal(stationId);
           })
           .catch((error) => {
+            hideLoadingSpinner();
             console.error(error);
           });
       }
