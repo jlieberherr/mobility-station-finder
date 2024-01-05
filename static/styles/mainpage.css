@@ -19,7 +19,7 @@ body {
 
 .orig, .dest {
     flex-grow: 4;
-    margin: 5px;
+    margin: 2px;
 }
 
 #orig, #dest {
@@ -29,7 +29,7 @@ body {
 
 #deptime {
     flex-grow: 2;
-    margin: 5px;
+    margin: 2px;
     border: 2px solid #ccc;
     border-radius: 10px;
     font-family: 'Helvetica Neue', sans-serif;
@@ -40,7 +40,7 @@ body {
 
 .run-search {
     flex-grow: 2;
-    margin: 5px;
+    margin: 2px;
     background: #d3d3d3;
     color: #000;
     padding: 10px;
