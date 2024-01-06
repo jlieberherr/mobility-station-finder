@@ -405,7 +405,7 @@ function getPTLegInfosPerStationId(xmlDoc, stationId) {
         const startTime = new Date(
           legBoard
             .getElementsByTagName("ojp:ServiceDeparture")[0]
-            .getElementsByTagName("ojp:TimetabledTime")[0].textContent
+            .getElementsByTagName("ojp:TimetabledTime")[0].textContent.slice(0,-1)
         );
         const legAlight = timedLeg.getElementsByTagName("ojp:LegAlight")[0];
         const endName = legAlight
@@ -414,7 +414,7 @@ function getPTLegInfosPerStationId(xmlDoc, stationId) {
         const endTime = new Date(
           legAlight
             .getElementsByTagName("ojp:ServiceArrival")[0]
-            .getElementsByTagName("ojp:TimetabledTime")[0].textContent
+            .getElementsByTagName("ojp:TimetabledTime")[0].textContent.slice(0,-1)
         );
         const legInfo = {
           legMode: legMode,
@@ -717,7 +717,7 @@ function showBestMobilityStations(vTTS) {
       let fourthCol = row.insertCell(3);
       fourthCol.innerHTML = floatToHHMM(roadJT);
       let fifthCol = row.insertCell(4);
-      fifthCol.innerHTML = roadDist.toFixed(2);
+      fifthCol.innerHTML = roadDist.toFixed(2) + " km";
       row.addEventListener("click", function () {
         getRoutingDataAndShowModal(stationId);
       });
