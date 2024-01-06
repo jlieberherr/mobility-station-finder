@@ -2,7 +2,7 @@
  * Mobility-Station-Finder
  */
 
-const env = "production_";
+const env = "production";
 let apiUrl;
 
 if (env === "production") {
