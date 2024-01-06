@@ -500,8 +500,8 @@ function showModal(stationId) {
       ptInfosTable += `<tr>
         <td>${ptInfo["legMode"]}</td>
         <td>${ptInfo["startName"]}</td>
-        <td>${ptInfo["startTime"].toLocaleTimeString("de-CH")}</td>
         <td>${ptInfo["endName"]}</td>
+        <td>${ptInfo["startTime"].toLocaleTimeString("de-CH")}</td>
         <td>${ptInfo["endTime"].toLocaleTimeString("de-CH")}</td>
       </tr>`;
     });
@@ -522,8 +522,8 @@ function showModal(stationId) {
     <tr>
       <th>Verkehrsmittel</th>
       <th>Start</th>
-      <th>Abfahrt</th>
       <th>Ziel</th>
+      <th>Abfahrt</th>
       <th>Ankunft</th>
     </tr>
     ${ptInfosTable}
