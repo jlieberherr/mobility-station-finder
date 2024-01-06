@@ -2,7 +2,7 @@
  * Mobility-Station-Finder
  */
 
-const env = "production";
+const env = "production_";
 let apiUrl;
 
 if (env === "production") {
@@ -689,7 +689,7 @@ function showBestMobilityStations(vTTS) {
       return parseFloat(a.Costs) - parseFloat(b.Costs);
     })
     .forEach((stationCost) => {
-      stationId = stationCost["Stationsnummer"];
+      const stationId = stationCost["Stationsnummer"];
       // change color of marker
       stationMarkerPerId[stationId].setStyle({
         fillColor: "red",
