@@ -378,10 +378,10 @@ function getPTLegInfosPerStationId(xmlDoc, stationId) {
         const startTime = new Date(
           continousLeg.getElementsByTagName(
             "ojp:TimeWindowStart"
-          )[0].textContent
+          )[0].textContent.slice(0,-1)
         );
         const endTime = new Date(
-          continousLeg.getElementsByTagName("ojp:TimeWindowEnd")[0].textContent
+          continousLeg.getElementsByTagName("ojp:TimeWindowEnd")[0].textContent.slice(0,-1)
         );
         const legInfo = {
           legMode: legMode,
