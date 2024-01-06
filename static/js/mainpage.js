@@ -711,19 +711,13 @@ function showBestMobilityStations(vTTS) {
       let firstCol = row.insertCell(0);
       firstCol.innerHTML = stName;
       let secondCol = row.insertCell(1);
-      secondCol.innerHTML = nonFootPenalty.toFixed(2);
+      secondCol.innerHTML = floatToHHMM(ptJT);
       let thirdCol = row.insertCell(2);
-      thirdCol.innerHTML = floatToHHMM(ptJT);
+      thirdCol.innerHTML = ptNT.toFixed(2);
       let fourthCol = row.insertCell(3);
-      fourthCol.innerHTML = ptNT.toFixed(2);
+      fourthCol.innerHTML = floatToHHMM(roadJT);
       let fifthCol = row.insertCell(4);
-      fifthCol.innerHTML = ptDist.toFixed(2);
-      let sixthCol = row.insertCell(5);
-      sixthCol.innerHTML = floatToHHMM(roadJT);
-      let seventhCol = row.insertCell(6);
-      seventhCol.innerHTML = roadDist.toFixed(2);
-      let eighthCol = row.insertCell(7);
-      eighthCol.innerHTML = cost.toFixed(1);
+      fifthCol.innerHTML = roadDist.toFixed(2);
       row.addEventListener("click", function () {
         getRoutingDataAndShowModal(stationId);
       });
