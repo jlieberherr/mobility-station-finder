@@ -41,7 +41,7 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 map.zoomControl.remove();
-L.control.zoom({ position: 'topright' }).addTo(map);
+L.control.zoom({ position: "topright" }).addTo(map);
 
 var stateChangingButton = L.easyButton({
   states: [
@@ -62,7 +62,7 @@ var stateChangingButton = L.easyButton({
       },
     },
   ],
-}).setPosition('topright');
+}).setPosition("topright");
 stateChangingButton.addTo(map);
 
 var toggleTableButton = L.easyButton("fa-table", function (btn, map) {
@@ -497,8 +497,7 @@ function showModal(stationId) {
     roadInfos = roadInfosPerStationId[stationId];
     var ptInfosTable = "";
     ptInfos.forEach((ptInfo) => {
-      ptInfosTable += 
-      `<tr>
+      ptInfosTable += `<tr>
         <td>${ptInfo["legMode"]}</td>
         <td>${ptInfo["startName"]}</td>
         <td>${ptInfo["startTime"].toLocaleTimeString("de-CH")}</td>
@@ -555,6 +554,98 @@ function showModal(stationId) {
   }
 }
 
+function getRoutingDataAndShowModal(stationId) {
+  showLoadingSpinner();
+  var ojpRequestTerminated = false;
+  var osrmRequestTerminated = false;
+  // init polylineFeatureGroup
+  if (polylineFeatureGroup != null) {
+    // remove polylineFeatureGroup from map
+    polylineFeatureGroup.remove();
+    // create new polylineFeatureGroup
+  }
+  polylineFeatureGroup = L.featureGroup();
+  // check if stationId is in xmlDocPTJourneyPerStationId
+  if (stationId in xmlDocPTJourneyPerStationId) {
+    ojpRequestTerminated = true;
+    if (osrmRequestTerminated) {
+      hideLoadingSpinner();
+    }
+    showPTJourney(xmlDocPTJourneyPerStationId[stationId]);
+  } else {
+    const api_ojp = `${apiUrl}/api/ojp-request?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${stationMarkerPerId[stationId]._latlng.lng}&dest_northing=${stationMarkerPerId[stationId]._latlng.lat}&dep_time=${timePicker.value}`;
+    fetch(api_ojp)
+      .then((response) => {
+        if (!response.ok) {
+          alert("Beim Abfragen der öV-Verbindung ist ein Fehler aufgetreten");
+          throw new Error("OJP request failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        ojpRequestTerminated = true;
+        if (osrmRequestTerminated) {
+          hideLoadingSpinner();
+        }
+        xmlDocString = JSON.parse(data)["xml_str"];
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlDocString, "text/xml");
+        xmlDocPTJourneyPerStationId[stationId] = xmlDoc;
+        ptLegInfosPerStationId[stationId] = getPTLegInfosPerStationId(
+          xmlDoc,
+          stationId
+        );
+        showPTJourney(xmlDoc);
+        showModal(stationId);
+      })
+      .catch((error) => {
+        hideLoadingSpinner();
+        console.error(error);
+      });
+  }
+  if (stationId in roadDataPerStationId) {
+    osrmRequestTerminated = true;
+    if (ojpRequestTerminated) {
+      hideLoadingSpinner();
+    }
+    showRoadJourney(roadDataPerStationId[stationId]);
+  } else {
+    var stationEasting = stationMarkerPerId[stationId]._latlng.lng;
+    var stationNorthing = stationMarkerPerId[stationId]._latlng.lat;
+    var destEasting = destMarker.getLatLng().lng;
+    var destNorthing = destMarker.getLatLng().lat;
+    const url_orm = `https://router.project-osrm.org/route/v1/driving/${stationEasting},${stationNorthing};${destEasting},${destNorthing}?geometries=geojson`;
+    fetch(url_orm)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        osrmRequestTerminated = true;
+        if (ojpRequestTerminated) {
+          hideLoadingSpinner();
+        }
+        roadDataPerStationId[stationId] = data;
+        const duration = parseFloat(data["routes"][0]["duration"]) / 60.0;
+        const distance = parseFloat(data["routes"][0]["distance"]) / 1000.0;
+        roadInfosPerStationId[stationId] = {
+          startName: stationMarkerPerId[stationId]._popup._content,
+          endName: destMarker._popup._content,
+          duration: duration,
+          distance: distance,
+        };
+        showRoadJourney(data);
+        showModal(stationId);
+      })
+      .catch((error) => {
+        hideLoadingSpinner();
+        console.error(error);
+      });
+  }
+
+  polylineFeatureGroup.addTo(map);
+  showModal(stationId);
+}
+
 function showMobilityStations() {
   clearStationMarkers();
   const dataPerStationId = queryData["data_per_station_id"];
@@ -573,101 +664,9 @@ function showMobilityStations() {
     stationMarkerPerId[stationId] = marker;
     marker.addTo(map).bindPopup(stName);
     marker.addEventListener("click", (e) => {
-      showLoadingSpinner();
-      var ojpRequestTerminated = false;
-      var osrmRequestTerminated = false;
-      // init polylineFeatureGroup
-      if (polylineFeatureGroup != null) {
-        // remove polylineFeatureGroup from map
-        polylineFeatureGroup.remove();
-        // create new polylineFeatureGroup
-      }
-      polylineFeatureGroup = L.featureGroup();
       var this_marker = e.target;
       const stationId = this_marker.options.id;
-      // check if stationId is in xmlDocPTJourneyPerStationId
-      if (stationId in xmlDocPTJourneyPerStationId) {
-        ojpRequestTerminated = true;
-        if (osrmRequestTerminated) {
-          hideLoadingSpinner();
-        }
-        showPTJourney(xmlDocPTJourneyPerStationId[stationId]);
-      } else {
-        const api_ojp = `${apiUrl}/api/ojp-request?orig_easting=${origMarker._latlng.lng}&orig_northing=${origMarker._latlng.lat}&dest_easting=${this_marker._latlng.lng}&dest_northing=${this_marker._latlng.lat}&dep_time=${timePicker.value}`;
-        console.log(api_ojp);
-        fetch(api_ojp)
-          .then((response) => {
-            if (!response.ok) {
-              alert(
-                "Beim Abfragen der öV-Verbindung ist ein Fehler aufgetreten"
-              );
-              throw new Error("OJP request failed");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            console.log(data);
-            ojpRequestTerminated = true;
-            if (osrmRequestTerminated) {
-              hideLoadingSpinner();
-            }
-            xmlDocString = JSON.parse(data)["xml_str"];
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlDocString, "text/xml");
-            xmlDocPTJourneyPerStationId[stationId] = xmlDoc;
-            ptLegInfosPerStationId[stationId] = getPTLegInfosPerStationId(
-              xmlDoc,
-              stationId
-            );
-            showPTJourney(xmlDoc);
-            showModal(stationId);
-          })
-          .catch((error) => {
-            hideLoadingSpinner();
-            console.error(error);
-          });
-      }
-      if (stationId in roadDataPerStationId) {
-        osrmRequestTerminated = true;
-        if (ojpRequestTerminated) {
-          hideLoadingSpinner();
-        }
-        showRoadJourney(roadDataPerStationId[stationId]);
-      } else {
-        var stationEasting = this_marker.getLatLng().lng;
-        var stationNorthing = this_marker.getLatLng().lat;
-        var destEasting = destMarker.getLatLng().lng;
-        var destNorthing = destMarker.getLatLng().lat;
-        const url_orm = `https://router.project-osrm.org/route/v1/driving/${stationEasting},${stationNorthing};${destEasting},${destNorthing}?geometries=geojson`;
-        fetch(url_orm)
-          .then((response) => {
-            return response.json();
-          })
-          .then((data) => {
-            osrmRequestTerminated = true;
-            if (ojpRequestTerminated) {
-              hideLoadingSpinner();
-            }
-            roadDataPerStationId[stationId] = data;
-            const duration = parseFloat(data["routes"][0]["duration"]) / 60.0;
-            const distance = parseFloat(data["routes"][0]["distance"]) / 1000.0;
-            roadInfosPerStationId[stationId] = {
-              startName: this_marker._popup._content,
-              endName: destMarker._popup._content,
-              duration: duration,
-              distance: distance,
-            };
-            showRoadJourney(data);
-            showModal(stationId);
-          })
-          .catch((error) => {
-            hideLoadingSpinner();
-            console.error(error);
-          });
-      }
-
-      polylineFeatureGroup.addTo(map);
-      showModal(stationId);
+      getRoutingDataAndShowModal(stationId);
     });
   });
   zoomMapToMarkers();
@@ -725,6 +724,9 @@ function showBestMobilityStations(vTTS) {
       seventhCol.innerHTML = roadDist.toFixed(2);
       let eighthCol = row.insertCell(7);
       eighthCol.innerHTML = cost.toFixed(1);
+      row.addEventListener("click", function () {
+        getRoutingDataAndShowModal(stationId);
+      });
     });
 }
 
@@ -751,12 +753,12 @@ function checkForSearch() {
 
 function checkForSlider() {
   if (queryData != null) {
-    document.querySelector('.leaflet-control-slider').style.display = 'block';
+    document.querySelector(".leaflet-control-slider").style.display = "block";
     document.getElementById("toggle-table-button").style.display = "block";
     document.getElementById("zoom-button").style.display = "block";
     return true;
   } else {
-    document.querySelector('.leaflet-control-slider').style.display = 'none';
+    document.querySelector(".leaflet-control-slider").style.display = "none";
     document.getElementById("toggle-table-button").style.display = "none";
     document.getElementById("zoom-button").style.display = "none";
     return false;
