@@ -6,7 +6,7 @@ Die Beantwortung dieser Frage(n) hängt von verschiedensten Parametern ab:
 - den Kosten, welche für die mit dem Mobility zurückgelegte Wegstrecke anfallen
 - der persönlichen Zahlungsbereitschaft resp. der Bereitschaft, eine längere Fahrt in Kauf zu nehmen.
 
-Diese Webseite <a href="mobility-station-finder.ch/</a> stellt einen Service zur Verfügung, welcher es Mobility-Nutzern erleichtert, diese Frage(n) zu beantworten. Und zwar indem alle relevanten Informationen auf einer Webseite zur Verfügung gestellt werden. Damit entfällt das lästige Wechseln zwischen verschiedenen Webseiten (z.B. <a href="https://www.mobility.ch/de/privatkunden/standorte">Mobility-Standorte</a>, <a href="www.sbb.ch">SBB-Fahrplanabfragen</a> und <a href="https://www.google.ch/maps">Google Maps</a>).
+Die Webseite <a href="http://mobility-station-finder.ch/">mobility-station-finder.ch</a> soll es Mobility-Nutzern erleichtert, diese Frage(n) zu beantworten. Und zwar indem alle relevanten Informationen auf einer Webseite zur Verfügung gestellt werden. Damit entfällt das lästige Wechseln zwischen verschiedenen Webseiten (z.B. <a href="https://www.mobility.ch/de/privatkunden/standorte">Mobility-Standorte</a>, <a href="www.sbb.ch">SBB-Fahrplanabfragen</a> und <a href="https://www.google.ch/maps">Google Maps</a>).
 
 # Anwendung
 ## Start und Ziel der Reise definieren
