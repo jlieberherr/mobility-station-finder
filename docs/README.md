@@ -9,11 +9,16 @@ Die Beantwortung dieser Frage(n) hängt von verschiedensten Parametern ab:
 Diese Webseite <a href="mobility-station-finder.ch/</a> stellt einen Service zur Verfügung, welcher es Mobility-Nutzern erleichtert, diese Frage(n) zu beantworten. Und zwar indem alle relevanten Informationen auf einer Webseite zur Verfügung gestellt werden. Damit entfällt das lästige Wechseln zwischen verschiedenen Webseiten (z.B. <a href="https://www.mobility.ch/de/privatkunden/standorte">Mobility-Standorte</a>, <a href="www.sbb.ch">SBB-Fahrplanabfragen</a> und <a href="https://www.google.ch/maps">Google Maps</a>).
 
 # Anwendung
+## Start und Ziel der Reise definieren
+- TODO
+## Mobility-Stationen aufrufen
+- TODO
+## Detailinformationen abrufen
 - TODO
 
 # Grundlagen
+## Daten
+- TODO
 ## Methodik
 - TODO
 
-## Daten
-- TODO
