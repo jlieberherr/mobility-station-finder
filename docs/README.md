@@ -5,7 +5,7 @@ Die Beantwortung dieser Frage(n) hängt von verschiedensten Parametern ab:
 - den Kosten, welche für die mit dem Mobility zurückgelegte Wegstrecke anfallen
 - der persönlichen Einschätzung zwischen Kosten und Zeit.
 
-Diese Webseite stellt einen Service zur Verfügung, welcher es Mobility-Nutzern erleichtert, diese Frage(n) zu beantworten. Und zwar indem alle relevanten Informationen auf einer Webseite zur Verfügung gestellt werden. Damit entfällt das lästige Wechseln zwischen verschiedenen Webseiten (z.B. <a href="https://www.mobility.ch/de/privatkunden/standorte">Mobility-Standorte</a>, <a href="www.sbb.ch">SBB-Fahrplanabfragen und <a href="https://www.google.ch/maps">Google Maps</a>).
+Diese Webseite stellt einen Service zur Verfügung, welcher es Mobility-Nutzern erleichtert, diese Frage(n) zu beantworten. Und zwar indem alle relevanten Informationen auf einer Webseite zur Verfügung gestellt werden. Damit entfällt das lästige Wechseln zwischen verschiedenen Webseiten (z.B. <a href="https://www.mobility.ch/de/privatkunden/standorte">Mobility-Standorte</a>, <a href="www.sbb.ch">SBB-Fahrplanabfragen</a> und <a href="https://www.google.ch/maps">Google Maps</a>).
 
 # Funktionsweise der Webseite:
 - TODO
