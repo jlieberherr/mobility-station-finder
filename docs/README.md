@@ -1,8 +1,18 @@
-Wer eine Reise von A nach B plant und dabei den Car-Sharing-Anbieter Mobility nutzen möchte, steht oft vor der Frage, an welcher Station das Mobility-Auto angemietet werden soll. Möglichst nah von zu Hause, d.h. mit den entsprechenden Fahrtkosten? Oder möglichst nahe am Ziel, d.h. mit einem evtl. längeren Anfahrtsweg mit dem öV? Oder irgendwo dazwischen, wo sich Zeit und die Kosten die Waage halten? Und wie sieht dann der Fahrplan für die Anfahrt mit dem öV aus? Und wie viele Kilometer sind dann mit dem Mobility zurückzulegen? Die Beantwortung dieser Frage(n) ist individueller Natur, da das optimale Gleichgewicht zwischen Zeit und Kosten von den persönlichen Umständen abhängt.
+Wer eine Reise von A nach B plant und dabei den <a href="https://www.mobility.ch/de">Car-Sharing-Anbieter Mobility</a> nutzen möchte, steht oft vor der Frage, an welcher Mobility-Station das Auto angemietet werden soll. Möglichst nah von zu Hause? Das kann teuer werden (da ein Mobility-Kilometer einiges kostet). Oder möglichst nahe am Ziel? Das kann lange dauern (da der öV nicht immer schnell ist). Oder gibt es vielleicht irgendwo dazwischen eine Mobility-Station, wo der Trade-off zwischen Kosten und Zeit in der Balance ist?
 
-Diese Webseite stellt einen Service zur Verfügung, mit welcher genau diese Frage analysiert werden kann. Das Ziel dieser Webseite ist es also, Mobility-Nutzer dabei zu unterstützen, möglichst schnell die für sich am besten passende Mobility-Station zu finden, um in Kombination mit dem öV von A nach B zu reisen.
+Die Beantwortung dieser Frage(n) hängt von verschiedensten Parametern ab:
+- der effektiven öV-Verbindung von zu Hause zur Mobility-Staion
+- den Kosten, welche für die mit dem Mobility zurückgelegte Wegstrecke anfallen
+- der persönlichen Einschätzung zwischen Kosten und Zeit.
 
-Die Webseite funktioniert wie folgt:
+Diese Webseite stellt einen Service zur Verfügung, welcher es Mobility-Nutzern erleichtert, diese Frage(n) zu beantworten. Und zwar indem alle relevanten Informationen auf einer Webseite zur Verfügung gestellt werden. Damit entfällt das lästige Wechseln zwischen verschiedenen Webseiten (z.B. <a href="https://www.mobility.ch/de/privatkunden/standorte">Mobility-Standorte</a>, <a href="www.sbb.ch">SBB-Fahrplanabfragen und <a href="https://www.google.ch/maps">Google Maps</a>).
+
+# Funktionsweise der Webseite:
 - TODO
 - TODO
 
+# Methodische Grundlagen:
+- TODO
+
+# Verwendete Daten:
+- TODO
