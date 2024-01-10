@@ -738,11 +738,11 @@ function showBestMobilityStations(vTTS) {
       let secondCol = row.insertCell(1);
       secondCol.innerHTML = floatToHHMM(ptJT);
       let thirdCol = row.insertCell(2);
-      thirdCol.innerHTML = ptNT.toFixed(2);
+      thirdCol.innerHTML = floatToHHMM(roadJT);
       let fourthCol = row.insertCell(3);
-      fourthCol.innerHTML = floatToHHMM(roadJT);
+      fourthCol.innerHTML = roadDist.toFixed(1) + "km";
       let fifthCol = row.insertCell(4);
-      fifthCol.innerHTML = roadDist.toFixed(2) + " km";
+      fifthCol.innerHTML = floatToHHMM(ptJT + roadJT); + "km";
       row.addEventListener("click", function () {
         getRoutingDataAndShowModal(stationId);
       });

@@ -15,7 +15,7 @@ and <a href="https://jlieberherr.github.io/mobility-station-finder/">the project
 
 ## Server (Linux)
 1. Install Python 3.10.8 and the virtual environment as in step 1 to 5 above
-2. Install nginx and gunicorn, see [here](https://www.linode.com/docs/guides/flask-and-gunicorn-on-ubuntu/#prepare-the-production-environment)
-3. Configure nginx, see [here](https://www.linode.com/docs/guides/flask-and-gunicorn-on-ubuntu/#configure-nginx)
-4. Run the Flask server by ```gunicorn -w 1 app_runner:app app_runner.py``` on http://mobility-station-finder.ch
+2. Install nginx and gunicorn, see i.e. [here](https://www.linode.com/docs/guides/flask-and-gunicorn-on-ubuntu/#prepare-the-production-environment)
+3. Configure nginx, see i.e. [here](https://www.linode.com/docs/guides/flask-and-gunicorn-on-ubuntu/#configure-nginx)
+4. Run the Flask server by ```gunicorn -w 1 app_runner:app app_runner.py```
 
