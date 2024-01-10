@@ -494,23 +494,36 @@ function showModal(stationId) {
     stationId in roadInfosPerStationId
   ) {
     // show data in ptInfos in a modal
-    ptInfos = ptLegInfosPerStationId[stationId];
-    roadInfos = roadInfosPerStationId[stationId];
-    var ptInfosTable = "";
-    ptInfos.forEach((ptInfo) => {
-      ptInfosTable += `<tr>
+    const ptInfos = ptLegInfosPerStationId[stationId];
+    const roadInfos = roadInfosPerStationId[stationId];
+    var infosTable = "";
+    const stationName = queryData["data_per_station_id"][stationId]["Name"];
+    const options = {
+      hour: '2-digit', // Display hours in 2-digit format
+      minute: '2-digit', // Display minutes in 2-digit format
+    };
+    for (let i = 0; i < ptInfos.length; i++) {
+      let ptInfo = ptInfos[i];
+      let startName = (i == 0 ? "Start" : ptInfo["startName"]);
+      let endName = (i == (ptInfos.length - 1) ? stationName : ptInfo["endName"]);
+      infosTable += `<tr>
         <td>${ptInfo["legMode"]}</td>
-        <td>${ptInfo["startName"]}</td>
-        <td>${ptInfo["endName"]}</td>
-        <td>${ptInfo["startTime"].toLocaleTimeString("de-CH")}</td>
-        <td>${ptInfo["endTime"].toLocaleTimeString("de-CH")}</td>
-      </tr>`;
-    });
-    var roadInfosTable = `<tr><td>${roadInfos["startName"]}</td><td>${
-      roadInfos["endName"]
-    }</td><td>${floatToHHMM(roadInfos["duration"])}</td><td>${roadInfos[
-      "distance"
-    ].toFixed(2)} km</td></tr>`;
+        <td>${startName}</td>
+        <td>${endName}</td>
+        <td>${ptInfo["startTime"].toLocaleTimeString("de-CH", options)}</td>
+        <td>${ptInfo["endTime"].toLocaleTimeString("de-CH", options)}</td>`;
+    }
+    const roadDuration =roadInfos["duration"];
+    const arrPt = ptInfos[ptInfos.length - 1]["endTime"];
+    const arrDate = new Date(arrPt);
+    arrDate.setMinutes(arrDate.getMinutes() + roadDuration);
+    infosTable +=  `<tr>
+                    <td>Mobility</td>
+                    <td>${stationName}</td>
+                    <td>Ziel</td>
+                    <td>${arrPt.toLocaleTimeString("de-CH", options)}</td>
+                    <td>${arrDate.toLocaleTimeString("de-CH", options)}</td><tr>`;
+
     var modal = document.getElementById("journey-info-modal");
     var modalContent = document.getElementById("journey-info-modal-content");
     modalContent.innerHTML = `
@@ -518,7 +531,7 @@ function showModal(stationId) {
 <span class="close">&times;</span>  
 </div>
 <div class="modal-body">
-  <h2>Weg zur Mobility-Station</h2>
+  <h2>Verbindungsdetails ${stationName}</h2>
   <table>
     <tr>
       <th>Verkehrsmittel</th>
@@ -527,19 +540,7 @@ function showModal(stationId) {
       <th>Abfahrt</th>
       <th>Ankunft</th>
     </tr>
-    ${ptInfosTable}
-  </table>
-  <br>
-  <h2>Weg mit Mobility</h2>
-  <table>
-    <tr>
-      <th>Start</th>
-      <th>Ziel</th>
-      <th>Dauer</th>
-      <th>Distanz</th>
-    </tr>
-    ${roadInfosTable}
-  </table>
+    ${infosTable}
 </div>
 `;
     modal.style.display = "block";
