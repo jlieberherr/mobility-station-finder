@@ -1,4 +1,3 @@
-# Wofür?
 Wer eine Reise von A nach B plant und dabei den <a href="https://www.mobility.ch/de">Car-Sharing-Anbieter Mobility</a> nutzen möchte, steht oft vor der Frage, an welcher Mobility-Station das Auto angemietet werden soll. Möglichst nah von zu Hause? Das kann teuer werden (da ein Mobility-Kilometer einiges kostet). Oder möglichst nahe am Ziel? Das kann lange dauern (da der öV nicht immer schnell ist). Oder gibt es vielleicht irgendwo dazwischen eine Mobility-Station, wo der Trade-off zwischen Kosten und Zeit für die persönliche Situation, in welcher man sich gerade befindet, in der Balance ist?
 
 Die Beantwortung dieser Frage(n) hängt von verschiedensten Parametern ab:
@@ -11,36 +10,60 @@ Die Webseite <a href="http://mobility-station-finder.ch/">mobility-station-finde
 Zu beachten:
 - Die Webseite verwendet nur öffentlich zugängliche Daten und kostenlose Services (siehe weiter unten). Die Qualtität dieser Daten resp. Services ist nicht immer so gut, wie dies bei zahlungspflichtigen Diensten der Fall sein kann. Entsprechend ist bei der Interpretation Vorsicht geboten.
 - Das Projekt ist auf eine private Initiative hin entstanden und verfolgt keinen kommerziellen Hintergrund. Für die Resultate wird selbstverständlich keine Haftung übernommen.
+- Start- und Zielpunkt müssen innerhalb der Schweiz liegen.
+- Der Source-Code ist auf <a href="https://github.com/jlieberherr/mobility-station-finder">github.com/jlieberherr/mobility-station-finder</a> unter einer <a href="https://github.com/jlieberherr/mobility-station-finder/blob/main/LICENSE">MIT-Lizenz</a> verfügbar.
 
 # Anwendung
 ## Start und Ziel der Reise definieren
 Start resp. Ziel der Reise können auf zwei Arten definiert werden:
-- Via die Eingabe einer Adresse in den Suchfeldern "Suche Startpunkt" resp. "Suche Zielpunkt.
-- Mausklick rechts auf den Punkt in der Karte, wo die Reise beginnen resp. enden soll -> "Hier Startpunkt setzen" resp. 
-"Hier Zielpunkt setzen" anklicken.
-In beiden Fällen wird für den Start- resp. Zielpunkt ein Marker gesetzt (rot = Startpunkt, blau = Zielpunkt) und Koordinaten (WGS84) ermittelt, welche als Input für den Algorithmus dienen. Die Position der Marker kann mit der Maus beliebig verschoben werden.
-Einschränkung: Start- und Zielpunkt müssen in der Schweiz liegen.
+1) Adresssuche über die Felder "Suche Startpunkt" resp. "Suche Zielpunkt
+![](images/Suchfelder.PNG)
+2) Mausklick rechts auf den Punkt in der Karte, wo die Reise beginnen resp. enden soll
+![](images/Mausklicksuche.PNG)
+
+In beiden Fällen wird für den Start- resp. Zielpunkt ein Marker gesetzt (rot = Startpunkt, blau = Zielpunkt) und Koordinaten ermittelt, welche als Input für den Algorithmus dienen.
+
+Die Position der Marker kann mit mittels drag-and-drop verschoben werden.
 
 ## Mobility-Stationen aufrufen
-Sobald Start- und Zielpunkt der Reise definiert sind, kann mittels Klick auf den "Suche"-Button die Suche für die Mobility-Station gestartet werden.
-Die gefundenen Mobility-Stationen werden jetzt auf der Karte als Kreise dargestellt. Zudem erscheint links ein Slider. Mit diesem Slider kann eingestellt werden, ob einem die Kosten oder die Zeit wichtig sind. Wenn die Kosten wichtig sind (tiefer Wert im Slider), werden in der Regel die dem Ziel am nächsten liegenden Mobility-Stationen rot eingefärbt (möglichst kurzer Mobility-Weg, sodass die Kosten gering sind). Wenn die Zeit wichtig ist (hoher Wert im Slider), werden in der Regel die Mobility-Stationen in der Nähe des Startes angezeigt (möglichst kurze Reisezeit). Für Posititionen des Sliders dazwischen erscheinen jeweils die Mobility-Stationen in rot, welche für das gerade gesetzte Kosten-Zeit-Verhältnis optimal sind.
-Via den oberen Button links kann auch Übersichtstabelle angezeigt werden, in welcher wichtige Kennwerte für die rot angezeigten Mobility-Stationen analysiert werden können.
+Sobald Start- und Zielpunkt der Reise definiert sind sowie eine gültige gewünschte Abfahrtszeit definiert ist, kann mittels Klick auf den "Suche"-Button die Suche für die Mobility-Station gestartet werden:  
+![](images/SucheButton.PNG)
 
-## Detailinformationen abrufen
-Mittels Klick auf einen zu einer Mobility-Station gehörenden Kreis resp. eine Zeile in der Übersichtstabelle, werden Detailinformationen zur Reise geladen. Hier wird nun auch die angegebene gewünschte Abfahrtszeit (inkl. Datum) berücksichtigt. Die Detailinformationen werden einerseits auf der Karte als geographischer Verlauf dargestellt (blau = öV-Weg, rot = Mobility-Weg), andrerseits als Tabelle mit den Ab- und Ankunftszeiten sowie den Umsteigehaltestellen.
+Die gefundenen Mobility-Stationen werden jetzt auf der Karte als Kreise dargestellt:  
+![](images/BernGletsch.PNG)
+
+Zudem erscheint links ein Slider. Mit diesem Slider kann eingestellt werden, ob einem die Kosten oder die Zeit wichtig sind:  
+![](images/Slider.PNG)  
+Wenn die Kosten wichtig sind (tiefer Wert des Sliders), werden die dem Ziel am nächsten liegenden Mobility-Stationen rot eingefärbt (möglichst kurzer Mobility-Weg, sodass die Kosten gering sind).  
+Wenn die Zeit wichtig ist (hoher Wert des Sliders), werden die Mobility-Stationen in der Nähe des Startes angezeigt (möglichst kurze Reisezeit, Kosten sind sekundär).  
+Für Posititionen des Sliders dazwischen erscheinen jeweils die Mobility-Stationen in rot, welche für das gerade gesetzte Kosten-Zeit-Verhältnis optimal sind.
+
+Via den Button ![](images/TabelleButton.PNG) können die Mobility-Stationen inkl. der wichtigsten Eckdaten in einer Tabelle angezeigt werden.  
+![](images/TabelleBernGletsch.PNG)
+Die Tabelle ist gemäss der aktuellen Einstellung des Sliders sortiert und die attraktivsten Mobility-Stationen sind rot eingefärbt (analog der Einfärbung der Kreise).
+
+## Detailinformationen anzeigen
+Mittels Klick auf einen zu einer Mobility-Station gehörenden Kreis resp. eine Zeile in der Übersichtstabelle, werden Detailinformationen zur Reise geladen:
+![](images/DateilsBernGletsch.PNG)  
+
 
 # Grundlagen
 ## Daten und Services
 Die Berechnung der Mobility-Stationen erfolgt auf Basis der folgenden Daten:
-- Reisezeit- und Umsteigehäufigkeitsmatrizen zwischen den Bezirken des Nationalen Personenverkehrsmodells NPVM (siehe ???)
-- Table-Service von OSRM
+- Reisezeit- und Umsteigehäufigkeitsmatrizen zwischen den Bezirken des <a href="https://www.are.admin.ch/are/de/home/mobilitaet/grundlagen-und-daten/verkehrsmodellierung/npvm.html">Nationalen Personenverkehrsmodells NPVM des Bundesamt für Raumentwicklung ARE</a>.
+- Matrix-Strassen-Routing von <a href="https://project-osrm.org">OSRM</a>.
+
 Die Berechnung der Detailinformationen erfolgt mittels:
-- öV-Verbindungsabrfrage auf OJP
-- Car-Routing auf OSRM
+- öV-Verbindungsabrfrage auf <a href="https://opentransportdata.swiss/de/dataset/ojp2020">OJP</a>.
+- Punkt-zu-Punkt-Strassen-Routing von <a href="https://project-osrm.org">OSRM</a>
+
 Weiteres:
-- Die angezeigte Karte basiert auf OpenStreetMap-Daten
-## Auswahl der Mobility-Stationen
-- Start- und Zielpunkt werden via WGS84-Koordinaten aufgelöst
-- Für alle Mobility-Stationen in der Schweiz wird die öV-Reisezeite sowie die öV-Umsteiggehäufigkeit vom Startpunkt zu dieser Mobility-Station sowie die Auto-Fahrzeit und die Auto-Kistanz von dieser Mobility-Station zum Ziel ermittelt.
-- Für alle Mobility-Stationen und verschiedene Zeitwerte werden generalisierte Kosten berechnet. Die Mobility-Stationen, welche für einen Zeitwert die geringsten generalisierten Kosten haben, werden eruiert und zurückgegeben. Dies sind die in der Karte dargestellten Mobility-Stationen.
+- Die angezeigte Karte basiert auf <a href="https://de.wikipedia.org/wiki/OpenStreetMap">OpenStreetMap</a> und <a href="https://leafletjs.com">Leaflet</a>.
+- Das Backend ist in Python mit <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a>, <a href="https://gunicorn.org">Gunicorn</a> und <a href="https://www.nginx.com/">nginx</a> umgesetzt.
+
+## Methodik
+- Bei festgelegtem Start- und Zielpunkt werden für alle Mobility-Stationen
+   - mit Hilfe der NPVM-Matrizen die öV-Reisezeit sowie die öV-Umsteigehäufigkeit vom Startpunkt zu dieser Mobility-Station,
+   - sowie mit Hilfe eines OSRM-Matrix-Routing die Auto-Fahrzeit und die Auto-Distanz von dieser Mobility-Station zum Zielpunkt ermittelt.
+- Auf dieser Basis werden für alle Mobility-Stationen die generalisierten Kosten des entsprechenden öV-Mobility-Weges in Abhängigkeit von verschiedenen Zeitwerten ermittelt. Die Mobility-Stationen, welche für einen Zeitwert die geringsten generalisierten Kosten haben, werden eruiert und zurückgegeben. Dies sind die in der Karte dargestellten Mobility-Stationen.
 
