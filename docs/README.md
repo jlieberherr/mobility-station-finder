@@ -15,9 +15,9 @@ Zu beachten:
 
 # Anwendung
 ## Start und Ziel der Reise definieren
-Start resp. Ziel der Reise können auf zwei Arten definiert werden:
+Start resp. Ziel der Reise können auf zwei Arten definiert werden:  
 1) Adresssuche über die Felder "Suche Startpunkt" resp. "Suche Zielpunkt
-![](images/Suchfelder.PNG)
+![](images/Suchfelder.PNG)  
 2) Mausklick rechts auf den Punkt in der Karte, wo die Reise beginnen resp. enden soll
 ![](images/Mausklicksuche.PNG)
 
