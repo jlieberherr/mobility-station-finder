@@ -21,8 +21,9 @@ STATION_NAME = 'station_name'
 ZONE_ID = 'zone_id'
 
 FACTOR_NOT_FOOT = "factor_not_foot"
-BEST_MOBILITY_STATION_COSTS_PER_VTTS = 'best_stations_costs_per_vtts'
+MOBILITY_STATIONS_COSTS_PER_VTTS = 'stations_costs_per_vtts'
 DATA_PER_MOBILITY_STATION_ID = 'data_per_station_id'
+BEST_STATIONS_PER_VTTS = 'best_stations_per_vtts'
 
 NPVM_N_GEM = "N_Gem"
 NPVM_N_KT = "N_KT"

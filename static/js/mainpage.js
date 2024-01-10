@@ -101,6 +101,7 @@ let queryData = null;
 let origMarker = null;
 let destMarker = null;
 let stationMarkerPerId = {};
+let rowPerStationId = {};
 let xmlDocPTJourneyPerStationId = {};
 let ptLegInfosPerStationId = {};
 let roadDataPerStationId = {};
@@ -272,7 +273,7 @@ function clearStationData() {
 }
 
 function getVTTSValue() {
-  ks = Object.keys(queryData["best_stations_costs_per_vtts"]);
+  ks = Object.keys(queryData["stations_costs_per_vtts"]);
   ind = Math.floor((sliderMap.slider.value / 100.0) * (ks.length - 1));
   return ks[ind];
 }
@@ -657,8 +658,6 @@ function showMobilityStations() {
 
     // add markers
     marker = L.circleMarker([stNorthing, stEasting], {
-      fillColor: "grey",
-      color: "grey",
       id: stationId,
     });
     stationMarkerPerId[stationId] = marker;
@@ -668,33 +667,56 @@ function showMobilityStations() {
       const stationId = this_marker.options.id;
       getRoutingDataAndShowModal(stationId);
     });
+    marker.addEventListener("mouseover", (e) => {
+      var this_marker = e.target;
+      const stationId = this_marker.options.id;
+      flashUpMarkerAndRow(stationId);
+    });
+    marker.addEventListener("mouseout", (e) => {
+      var this_marker = e.target;
+      const stationId = this_marker.options.id;
+      unflashMarkerAndRow(stationId);
+    });
   });
   zoomMapToMarkers();
 }
 
+function flashUpMarkerAndRow(stationId) {
+  rowPerStationId[stationId].style.fontWeight  = "bold";
+  stationMarkerPerId[stationId].setStyle({
+    radius: 15,
+  });
+}
+
+function unflashMarkerAndRow(stationId) {
+  rowPerStationId[stationId].style.fontWeight  = "normal";
+  stationMarkerPerId[stationId].setStyle({
+    radius: 10,
+  });
+
+}
+
 function showBestMobilityStations(vTTS) {
-  bestStationsCosts = queryData["best_stations_costs_per_vtts"][vTTS];
-  dataPerStationId = queryData["data_per_station_id"];
+  const stationsCosts = queryData["stations_costs_per_vtts"][vTTS];
+  const bestStations = queryData["best_stations_per_vtts"][vTTS];
+  const dataPerStationId = queryData["data_per_station_id"];
   initTable();
   // set all markers to red
   Object.keys(stationMarkerPerId).forEach((stationId) => {
+    const color = (bestStations.includes(stationId) ? "red" : "grey");
     stationMarkerPerId[stationId].setStyle({
-      fillColor: "grey",
-      color: "grey",
+      fillColor: color,
+      color: color,
     });
   });
+
   const table = document.getElementById("table");
-  bestStationsCosts
+  stationsCosts
     .sort(function (a, b) {
       return parseFloat(a.Costs) - parseFloat(b.Costs);
     })
     .forEach((stationCost) => {
       const stationId = stationCost["Stationsnummer"];
-      // change color of marker
-      stationMarkerPerId[stationId].setStyle({
-        fillColor: "red",
-        color: "red",
-      });
       cost = stationCost["Costs"];
       nonFootPenalty = dataPerStationId[stationId]["factor_not_foot"];
       ptJT = dataPerStationId[stationId]["pt_jt"];
@@ -708,6 +730,9 @@ function showBestMobilityStations(vTTS) {
 
       // add column rows
       let row = table.insertRow();
+      if (bestStations.includes(stationId)) {
+        row.style.backgroundColor = "rgba(255, 0, 0, 0.2)";
+      }
       let firstCol = row.insertCell(0);
       firstCol.innerHTML = stName;
       let secondCol = row.insertCell(1);
@@ -721,6 +746,13 @@ function showBestMobilityStations(vTTS) {
       row.addEventListener("click", function () {
         getRoutingDataAndShowModal(stationId);
       });
+      row.addEventListener("mouseover", function () {
+        flashUpMarkerAndRow(stationId);
+      });
+      row.addEventListener("mouseout", function () {
+        unflashMarkerAndRow(stationId);
+      });
+      rowPerStationId[stationId] = row;
     });
 }
 

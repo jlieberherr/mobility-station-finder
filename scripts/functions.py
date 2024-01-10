@@ -16,9 +16,10 @@ from scripts.constants import MOBILITY_STATIONSNUMMER, NPVM_ID, MOBILITY_STATION
     GEOMETRY, COSTS_CHF, CHF_PER_KM_MOBILITY, MIN_PER_TRANSFER, FIRST_FILTER_FACTOR, NORTHING, EASTING, NPVM_N_GEM, \
     EPSG, \
     VTTS_CHF_PER_H_MIN, VTTS_CHF_PER_H_MAX, \
-    VTTS_CHF_PER_H_STEP, CHF_PER_KM_PT, ZONE_ID_MOBILITY_STATION, BEST_MOBILITY_STATION_COSTS_PER_VTTS, \
+    VTTS_CHF_PER_H_STEP, CHF_PER_KM_PT, ZONE_ID_MOBILITY_STATION, MOBILITY_STATIONS_COSTS_PER_VTTS, \
     DATA_PER_MOBILITY_STATION_ID, DISTANCES, \
-    DURATIONS, EARTH_RADIUS, SECOND_FILTER_FACTOR, FACTOR_NOT_FOOT, PENALTY_IN_MIN_NOT_FOOT, FOOT_AREA_KM, NPVM_N_KT
+    DURATIONS, EARTH_RADIUS, SECOND_FILTER_FACTOR, FACTOR_NOT_FOOT, PENALTY_IN_MIN_NOT_FOOT, FOOT_AREA_KM, NPVM_N_KT, \
+    BEST_STATIONS_PER_VTTS
 from scripts.helpers.my_logging import log_start, log_end
 
 log = logging.getLogger(__name__)
@@ -122,10 +123,10 @@ def calc_costs_df(df_data, vtts, pt_min_per_transfer, pt_chf_per_km, road_chf_pe
             df_data[ROAD_JT]) + pt_chf_per_km * df_data[PT_DIST] + road_chf_per_km * df_data[ROAD_DIST]
 
 
-def get_relevant_stations(df_stations_per_vtts):
+def get_relevant_stations(best_stations_per_vtts):
     relevant_stations = []
-    for df_ in df_stations_per_vtts.values():
-        relevant_stations += df_[MOBILITY_STATIONSNUMMER].to_list()
+    for stations in best_stations_per_vtts.values():
+        relevant_stations += stations
     relevant_stations = set(relevant_stations)
     return relevant_stations
 
@@ -177,15 +178,15 @@ def calc_distance(easting_1, northing_1, easting_2, northing_2):
     return distance
 
 
-def remove_top_vvts_with_no_changes(best_stations_costs_per_vtts):
+def remove_top_vvts_with_no_changes(best_stations_per_vtts_):
     """removes the top vtts such that from the highest to second highest vtts the set of station is different"""
-    vtts_descending = sorted(best_stations_costs_per_vtts.keys(), reverse=True)
-    last_stations = set(best_stations_costs_per_vtts[vtts_descending[0]][MOBILITY_STATIONSNUMMER])
+    vtts_descending = sorted(best_stations_per_vtts_.keys(), reverse=True)
+    last_stations = set(best_stations_per_vtts_[vtts_descending[0]])
     last_vtts = vtts_descending[0]
     for vtts in vtts_descending[1:]:
-        stations = set(best_stations_costs_per_vtts[vtts][MOBILITY_STATIONSNUMMER])
+        stations = set(best_stations_per_vtts_[vtts])
         if stations == last_stations:
-            del best_stations_costs_per_vtts[last_vtts]
+            del best_stations_per_vtts_[last_vtts]
             last_stations = stations
             last_vtts = vtts
         else:
@@ -245,27 +246,36 @@ def run_query(orig_easting_northing, dest_easting_northing,
     # penalty for not being accessible by foot
     df_data[FACTOR_NOT_FOOT] = df_data.apply(calc_not_foot_penalty, axis=1)
 
+    def get_relevant_stations_per_vtts_costs_per_vtts(vtts_min_, vtts_max_, vtts_step_, filter_factor):
+        stations_costs_per_vtts_ = {}
+        best_stations_per_vtts_ = {}
+        for vtts in range(vtts_min_, vtts_max_, vtts_step_):
+            df_data[COSTS_CHF] = calc_costs_df(df_data, vtts, min_per_transfer, pt_chf_per_km, road_chf_per_km,
+                                               penalty_not_foot)
+            stations_costs_per_vtts_[vtts] = df_data[[MOBILITY_STATIONSNUMMER, COSTS_CHF]]
+            min_costs = df_data[COSTS_CHF].min()
+            best_stations_per_vtts_[vtts] = df_data[df_data[COSTS_CHF] <= filter_factor * min_costs][
+                MOBILITY_STATIONSNUMMER].tolist()
+        return stations_costs_per_vtts_, best_stations_per_vtts_
+
     # calculate the best stations per value of travel time savings based on npvm pt and road matrices
     while True:
         # loop until not more than 200 stations are left (osrm matrix routing accepts max 200 stations)
-        best_stations_costs_per_vtts = {}
-        for vtts in range(vtts_min, vtts_max, vtts_step):
-            df_data[COSTS_CHF] = calc_costs_df(df_data, vtts, min_per_transfer, pt_chf_per_km, road_chf_per_km,
-                                               penalty_not_foot)
-            min_costs = df_data[COSTS_CHF].min()
-            best_stations_costs_per_vtts[vtts] = df_data[[MOBILITY_STATIONSNUMMER, COSTS_CHF]][
-                df_data[COSTS_CHF] <= first_filter_factor * min_costs]
-            relevant_stations = get_relevant_stations(best_stations_costs_per_vtts)
-            df_data_relevant_stations = df_data[df_data.Stationsnummer.isin(relevant_stations)]
-        if len(df_data_relevant_stations) <= 200: # osrm matrix routing accepts max approximately 200 stations
+        stations_costs_per_vtts, best_stations_per_vtts = get_relevant_stations_per_vtts_costs_per_vtts(vtts_min,
+                                                                                                        vtts_max,
+                                                                                                        vtts_step,
+                                                                                                        first_filter_factor)
+        relevant_stations = get_relevant_stations(best_stations_per_vtts)
+        if len(relevant_stations) <= 200:  # osrm matrix routing accepts max approximately 200 stations
             break
         else:
-            log.info(f"with filter factor {first_filter_factor} too much stations {len(df_data_relevant_stations)}")
+            log.info(f"with filter factor {first_filter_factor} too much stations {len(relevant_stations)}")
             first_filter_factor -= 0.01
 
     # get road distances and durations from potential mobility stations to destination (by osrm car routing)
     # this step is only necessary since the osrm matrix routing accept max 200 stations
     # if the osrm matrix routing would be done locally this step could be skipped (potentially)
+    df_data_relevant_stations = df_data[df_data[MOBILITY_STATIONSNUMMER].isin(relevant_stations)]
     list_relevant_stations_for_road_routing = list(
         df_data_relevant_stations[[MOBILITY_STATIONSNUMMER, EASTING, NORTHING]].to_dict("records"))
     try:
@@ -287,29 +297,28 @@ def run_query(orig_easting_northing, dest_easting_northing,
     # recalculate the best stations per value of travel time savings,
     # now with road distances and durations from osrm routing
     # and a stricter filter criterion.
-    best_stations_costs_per_vtts = {}
-    for vtts in range(vtts_min, vtts_max, vtts_step):
-        df_data_relevant_stations[COSTS_CHF] = calc_costs_df(df_data_relevant_stations, vtts, min_per_transfer,
-                                                             pt_chf_per_km, road_chf_per_km,
-                                                             penalty_not_foot)
-        min_costs = df_data_relevant_stations[COSTS_CHF].min()
-        best_stations_costs_per_vtts[vtts] = df_data_relevant_stations[[MOBILITY_STATIONSNUMMER, COSTS_CHF]][
-            df_data_relevant_stations[COSTS_CHF] <= second_filter_factor * min_costs]
+    stations_costs_per_vtts, best_stations_per_vtts = get_relevant_stations_per_vtts_costs_per_vtts(vtts_min,
+                                                                                                    vtts_max,
+                                                                                                    vtts_step,
+                                                                                                    second_filter_factor)
 
-    remove_top_vvts_with_no_changes(best_stations_costs_per_vtts)
+    remove_top_vvts_with_no_changes(best_stations_per_vtts)
     # filter the DataFrame to only contain the relevant stations
-    relevant_stations = get_relevant_stations(best_stations_costs_per_vtts)
+    relevant_stations = get_relevant_stations(best_stations_per_vtts)
     df_data_relevant_stations = df_data_relevant_stations[
         df_data_relevant_stations.Stationsnummer.isin(relevant_stations)]
 
     # prepare output
     data_per_station_id = df_data_relevant_stations.to_dict('records')
     data_per_station_id = {x[MOBILITY_STATIONSNUMMER]: x for x in data_per_station_id}
+    relevant_stations_costs_per_vtts = {k: v[v[MOBILITY_STATIONSNUMMER].isin(relevant_stations)] for k, v in
+                                        stations_costs_per_vtts.items() if k in best_stations_per_vtts.keys()}
 
     log.info(f'# mobility stations: {len(data_per_station_id)}')
     log_end()
     return {
-        BEST_MOBILITY_STATION_COSTS_PER_VTTS: {k: df.to_dict('records') for k, df in
-                                               best_stations_costs_per_vtts.items()},
+        MOBILITY_STATIONS_COSTS_PER_VTTS: {k: df.to_dict('records') for k, df in
+                                           relevant_stations_costs_per_vtts.items()},
         DATA_PER_MOBILITY_STATION_ID: data_per_station_id,
+        BEST_STATIONS_PER_VTTS: best_stations_per_vtts,
     }
