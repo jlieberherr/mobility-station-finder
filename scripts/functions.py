@@ -234,8 +234,7 @@ def run_query(orig_easting_northing, dest_easting_northing,
     for df in [df_pt_nt, df_pt_dist, df_road_jt, df_road_dist]:
         df_data = df_data.merge(df)
     # merge with stations
-    df_data = df_data.merge(gdf_stations_with_zone, left_on=ZONE_ID_MOBILITY_STATION, right_on=NPVM_ID)[
-        fields]
+    df_data = df_data.merge(gdf_stations_with_zone, left_on=ZONE_ID_MOBILITY_STATION, right_on=NPVM_ID)[fields]
 
     def calc_not_foot_penalty(x):
         """calculates the penalty for not being accessible by foot as a factor between 0 and 1"""
@@ -246,7 +245,7 @@ def run_query(orig_easting_northing, dest_easting_northing,
     # penalty for not being accessible by foot
     df_data[FACTOR_NOT_FOOT] = df_data.apply(calc_not_foot_penalty, axis=1)
 
-    # calculate the best stations per value of travel time savings
+    # calculate the best stations per value of travel time savings based on npvm pt and road matrices
     while True:
         # loop until not more than 200 stations are left (osrm matrix routing accepts max 200 stations)
         best_stations_costs_per_vtts = {}
@@ -258,13 +257,15 @@ def run_query(orig_easting_northing, dest_easting_northing,
                 df_data[COSTS_CHF] <= first_filter_factor * min_costs]
             relevant_stations = get_relevant_stations(best_stations_costs_per_vtts)
             df_data_relevant_stations = df_data[df_data.Stationsnummer.isin(relevant_stations)]
-        if len(df_data_relevant_stations) <= 200:
+        if len(df_data_relevant_stations) <= 200: # osrm matrix routing accepts max approximately 200 stations
             break
         else:
-            print(len(df_data_relevant_stations))
+            log.info(f"with filter factor {first_filter_factor} too much stations {len(df_data_relevant_stations)}")
             first_filter_factor -= 0.01
 
     # get road distances and durations from potential mobility stations to destination (by osrm car routing)
+    # this step is only necessary since the osrm matrix routing accept max 200 stations
+    # if the osrm matrix routing would be done locally this step could be skipped (potentially)
     list_relevant_stations_for_road_routing = list(
         df_data_relevant_stations[[MOBILITY_STATIONSNUMMER, EASTING, NORTHING]].to_dict("records"))
     try:
@@ -279,8 +280,7 @@ def run_query(orig_easting_northing, dest_easting_northing,
                                 columns=[MOBILITY_STATIONSNUMMER, ROAD_DIST])
     pd_durations = pd.DataFrame(list(road_durations_from_station_to_dest_per_station_id.items()),
                                 columns=[MOBILITY_STATIONSNUMMER, ROAD_JT])
-    df_data_relevant_stations = df_data_relevant_stations.drop([ROAD_DIST, ROAD_JT],
-                                                               axis=1)  # these values will be overwritten by the new values from osr routing
+    df_data_relevant_stations = df_data_relevant_stations.drop([ROAD_DIST, ROAD_JT], axis=1)
     df_data_relevant_stations = df_data_relevant_stations.merge(pd_distances, on=MOBILITY_STATIONSNUMMER)
     df_data_relevant_stations = df_data_relevant_stations.merge(pd_durations, on=MOBILITY_STATIONSNUMMER)
 
