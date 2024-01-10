@@ -125,7 +125,7 @@ const sliderMap = L.control
       position: "topleft",
       title: "Zeitwert",
       id: "slider-map",
-      showValue: false,
+      showValue: true,
     }
   )
   .addTo(map);
