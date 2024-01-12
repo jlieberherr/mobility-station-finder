@@ -5,7 +5,7 @@ Die Beantwortung dieser Frage(n) hängt von verschiedensten Parametern ab, z.B.:
 - den Kosten, welche für die mit dem Mobility zurückgelegte Wegstrecke anfallen,
 - der persönlichen Zahlungsbereitschaft resp. umgekehrt der Bereitschaft, eine längere Fahrt in Kauf zu nehmen.
 
-Die Webseite <a href="http://mobility-station-finder.ch/">mobility-station-finder.ch</a> soll es Mobility-Nutzern erleichtert, diese Frage(n) zu beantworten. Und zwar indem alle relevanten Informationen auf einer Webseite zur Verfügung gestellt werden. Damit entfällt das lästige Wechseln zwischen verschiedenen Webseiten (z.B. Mobility-Webseite, SBB-App, Google Maps).
+Die Webseite <a href="https://mobility-station-finder.ch/">mobility-station-finder.ch</a> soll es Mobility-Nutzern erleichtert, diese Frage(n) zu beantworten. Und zwar indem alle relevanten Informationen auf einer Webseite zur Verfügung gestellt werden. Damit entfällt das lästige Wechseln zwischen verschiedenen Webseiten (z.B. Mobility-Webseite, SBB-App, Google Maps).
 
 Zu beachten:
 - Die Webseite verwendet nur öffentlich zugängliche Daten und kostenlose Services (siehe weiter unten). Die Qualtität dieser Daten resp. Services ist nicht immer so gut, wie dies bei zahlungspflichtigen Diensten der Fall sein kann. Entsprechend ist bei der Interpretation Vorsicht geboten.
