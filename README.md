@@ -1,6 +1,6 @@
 # mobility-station-finder
 
-This is the repository for the Mobility-Station-Finder project. See <a href="http://mobility-station-finder.ch">mobility-station-finder.ch</a> for the live version 
+This is the repository for the Mobility-Station-Finder project. See <a href="https://mobility-station-finder.ch">mobility-station-finder.ch</a> for the live version 
 and <a href="https://jlieberherr.github.io/mobility-station-finder/">the project page</a> for more information.
 
 # Installation

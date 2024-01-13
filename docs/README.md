@@ -1,17 +1,17 @@
-Wer eine Reise von A nach B plant und dabei den <a href="https://www.mobility.ch/de">Car-Sharing-Anbieter Mobility</a> nutzen möchte, steht oft vor der Frage, an welcher Mobility-Station das Auto angemietet werden soll. Möglichst nah von zu Hause? Das kann teuer werden (da ein Mobility-Kilometer einiges kostet). Oder möglichst nahe am Ziel? Das kann lange dauern (da der öV nicht immer schnell ist). Oder gibt es vielleicht irgendwo dazwischen eine Mobility-Station, wo der Trade-off zwischen Kosten und Zeit für die persönliche Situation, in welcher man sich gerade befindet, in der Balance ist?
+Wer in der Schweiz eine Reise von A nach B plant und dabei den Carsharing-Anbieter <a href="https://www.mobility.ch/de">Mobility</a> nutzen möchte, steht vor der Frage, an welcher Mobility-Station das Auto angemietet werden soll. Möglichst nah von zu Hause? Das kann teuer werden (da ein Mobility-Kilometer einiges kostet). Oder möglichst nahe am Ziel? Das kann lange dauern (da der öV nicht immer schnell ist). Oder gibt es vielleicht dazwischen eine Mobility-Station, wo der Trade-off zwischen Kosten und Zeit für die persönliche Situation, in welcher man sich gerade befindet, in der Balance ist?
 
 Die Beantwortung dieser Frage(n) hängt von verschiedensten Parametern ab, z.B.:
-- der effektiven öV-Verbindung von zu Hause zur Mobility-Station,
+- den effektiven öV-Verbindung von zu Hause zu den potentiellen Mobility-Station,
 - den Kosten, welche für die mit dem Mobility zurückgelegte Wegstrecke anfallen,
 - der persönlichen Zahlungsbereitschaft resp. umgekehrt der Bereitschaft, eine längere Fahrt in Kauf zu nehmen.
 
 Die Webseite <a href="https://mobility-station-finder.ch/">mobility-station-finder.ch</a> soll es Mobility-Nutzern erleichtert, diese Frage(n) zu beantworten. Und zwar indem alle relevanten Informationen auf einer Webseite zur Verfügung gestellt werden. Damit entfällt das lästige Wechseln zwischen verschiedenen Webseiten (z.B. Mobility-Webseite, SBB-App, Google Maps).
 
 Zu beachten:
-- Die Webseite verwendet nur öffentlich zugängliche Daten und kostenlose Services (siehe weiter unten). Die Qualtität dieser Daten resp. Services ist nicht immer so gut, wie dies bei zahlungspflichtigen Diensten der Fall sein kann. Entsprechend ist bei der Interpretation Vorsicht geboten.
-- Das Projekt ist auf eine private Initiative hin entstanden und verfolgt keinen kommerziellen Hintergrund. Für die Resultate wird selbstverständlich keine Haftung übernommen.
-- Der Source-Code ist auf <a href="https://github.com/jlieberherr/mobility-station-finder">github.com/jlieberherr/mobility-station-finder</a> unter einer <a href="https://github.com/jlieberherr/mobility-station-finder/blob/main/LICENSE">MIT-Lizenz</a> verfügbar.
-- Start- und Zielpunkt müssen innerhalb der Schweiz liegen.
+- Die Webseite verwendet nur öffentlich zugängliche Daten und kostenlose Webdienste (siehe weiter unten). Die Qualtität dieser Daten resp. Dienste kann sich von derjenigen von kommerziellen Anbietern unterscheiden. Entsprechend ist bei der Interpretation der Resultate Vorsicht geboten.
+- Das Projekt ist auf private Initiative hin entstanden und hat keinen kommerziellen Hintergrund. Für die Nutzung der Webseite wird selbstverständlich keine Haftung übernommen.
+- Der Source-Code ist auf <a href="https://github.com/jlieberherr/mobility-station-finder">github.com/jlieberherr/mobility-station-finder</a> unter einer <a href="https://github.com/jlieberherr/mobility-station-finder/blob/main/LICENSE">MIT-Lizenz</a> öffentlich verfügbar.
+- Start- und Zielpunkt der Reise müssen innerhalb der Schweiz liegen.
 - Die Verfügbarkeit der Fahrzeuge an Mobility-Stationen wird nicht berücksichtigt.
 
 # Anwendung
