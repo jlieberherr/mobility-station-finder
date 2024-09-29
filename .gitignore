@@ -2,8 +2,6 @@
 package.json
 package-lock.json
 
-
-data
 data/*.mtx
 data/*.zip
 data/*.csv
