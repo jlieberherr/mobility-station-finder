@@ -9,7 +9,6 @@ Die Webseite <a href="https://mobility-station-finder.ch/">mobility-station-find
 
 Zu beachten:
 - Die Webseite verwendet nur öffentlich zugängliche Daten und kostenlose Webdienste (siehe weiter unten). Die Qualtität dieser Daten resp. Dienste kann sich von derjenigen von kommerziellen Anbietern unterscheiden. Entsprechend ist bei der Interpretation der Resultate Vorsicht geboten.
-- Der Source-Code ist auf <a href="https://github.com/jlieberherr/mobility-station-finder">github.com/jlieberherr/mobility-station-finder</a> unter einer <a href="https://github.com/jlieberherr/mobility-station-finder/blob/main/LICENSE">MIT-Lizenz</a> öffentlich verfügbar.
 - Start- und Zielpunkt der Reise müssen innerhalb der Schweiz liegen.
 - Die Verfügbarkeit der Fahrzeuge an Mobility-Stationen wird nicht berücksichtigt.
 
@@ -18,6 +17,7 @@ Zu beachten:
 - Kontakt: johannes.lieberherr@ttools.ch 
 - Diese Webseite kann die Start- und Zielkoordinaten von Verbindungsabfragen zu Analyse- und Statistikzwecken abspeichern. Es werden keinerlei weitere persönliche Daten zum Nutzungsverhalten erhoben resp. gespeichert. Es werden keine Cookies eingesetzt.
 - Für die Korrektheit der Ergebnisse und allfällige daraus entstehende Schäden wird selbstverständlich keinerlei Haftung übernommen.
+- Der Source-Code ist auf <a href="https://github.com/jlieberherr/mobility-station-finder">github.com/jlieberherr/mobility-station-finder</a> unter einer <a href="https://github.com/jlieberherr/mobility-station-finder/blob/main/LICENSE">MIT-Lizenz</a> öffentlich verfügbar.
 
 
 # Anwendung
