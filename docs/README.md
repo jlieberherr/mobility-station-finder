@@ -12,14 +12,6 @@ Zu beachten:
 - Start- und Zielpunkt der Reise müssen innerhalb der Schweiz liegen.
 - Die Verfügbarkeit der Fahrzeuge an Mobility-Stationen wird nicht berücksichtigt.
 
-# Impressum, Datenschutz und Haftung:
-- Das Projekt ist auf private Initiative hin entstanden und hat keinen kommerziellen Hintergrund.
-- Kontakt: johannes.lieberherr@ttools.ch 
-- Diese Webseite kann die Start- und Zielkoordinaten von Verbindungsabfragen zu Analyse- und Statistikzwecken abspeichern. Es werden keinerlei weitere persönliche Daten zum Nutzungsverhalten erhoben resp. gespeichert. Es werden keine Cookies eingesetzt.
-- Für die Korrektheit der Ergebnisse und allfällige daraus entstehende Schäden wird selbstverständlich keinerlei Haftung übernommen.
-- Der Source-Code ist auf <a href="https://github.com/jlieberherr/mobility-station-finder">github.com/jlieberherr/mobility-station-finder</a> unter einer <a href="https://github.com/jlieberherr/mobility-station-finder/blob/main/LICENSE">MIT-Lizenz</a> öffentlich verfügbar.
-
-
 # Anwendung
 ## Start und Ziel der Reise definieren
 Start resp. Ziel der Reise können auf zwei Arten definiert werden:  
@@ -76,3 +68,9 @@ Weiteres:
    - sowie mit Hilfe eines OSRM-Matrix-Routing die Auto-Fahrzeit und die Auto-Distanz von dieser Mobility-Station zum Zielpunkt ermittelt.
 - Auf dieser Basis werden für alle Mobility-Stationen die generalisierten Kosten des entsprechenden öV-Mobility-Weges in Abhängigkeit von verschiedenen Zeitwerten ermittelt. Die Mobility-Stationen, welche für einen Zeitwert die geringsten generalisierten Kosten haben, werden eruiert und zurückgegeben. Dies sind die in der Karte dargestellten Mobility-Stationen.
 
+# Impressum, Datenschutz und Haftung:
+- Das Projekt ist auf private Initiative hin entstanden und hat keinen kommerziellen Hintergrund.
+- Kontakt: johannes.lieberherr@ttools.ch 
+- Diese Webseite kann die Start- und Zielkoordinaten von Verbindungsabfragen zu Analyse- und Statistikzwecken abspeichern. Es werden keinerlei weitere persönliche Daten zum Nutzungsverhalten erhoben resp. gespeichert. Es werden keine Cookies eingesetzt.
+- Für die Korrektheit der Ergebnisse und allfällige daraus entstehende Schäden wird selbstverständlich keinerlei Haftung übernommen.
+- Der Source-Code ist auf <a href="https://github.com/jlieberherr/mobility-station-finder">github.com/jlieberherr/mobility-station-finder</a> unter einer <a href="https://github.com/jlieberherr/mobility-station-finder/blob/main/LICENSE">MIT-Lizenz</a> öffentlich verfügbar.
